@@ -14,17 +14,39 @@
     tools:showIn="@layout/app_bar_main">
 
     <TextView
+        android:text="Welcome to TrustyDrive!"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        android:id="@+id/textView2" />
+        android:id="@+id/welcomeText"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:layout_above="@+id/buttonAddAccount"
+        android:layout_centerHorizontal="true"/>
 
     <Button
-        android:text="Button"
+        android:text="Access documents"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="178dp"
-        android:id="@+id/button2"
-        android:layout_below="@+id/textView2"
-        android:layout_centerHorizontal="true" />
+        android:id="@+id/buttonAddAccount"
+        android:layout_above="@+id/buttonDocuments"
+        android:layout_centerHorizontal="true"
+        android:onClick="accessDocuments" />
+
+    <Button
+        android:text="Manage registered accounts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/buttonManageAccounts"
+        android:layout_below="@+id/buttonDocuments"
+        android:layout_centerHorizontal="true"
+        android:onClick="manageAccounts"/>
+
+    <Button
+        android:text="Add cloud accounts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/buttonDocuments"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:onClick="addCloudAccounts"/>
+
 </RelativeLayout>

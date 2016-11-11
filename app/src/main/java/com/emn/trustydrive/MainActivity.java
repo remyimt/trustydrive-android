@@ -1,5 +1,6 @@
 package com.emn.trustydrive;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -23,23 +24,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        final Button bouton2 = (Button) findViewById(R.id.button2);
-        bouton2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                bouton2.setText("NEW TEXT");
-            }
-        });
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -107,4 +91,29 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    /**
+     * Called when the user clicks the " Access documents " button
+     */
+    public void accessDocuments(View v) {
+        Intent intent = new Intent(this, AccessDocumentsActivity.class);
+        startActivity(intent);
+    }
+
+    /**
+     * Called when the user clicks the " Manage registered accounts " button
+     */
+    public void manageAccounts(View v) {
+        Intent intent = new Intent(this, ManageCloudAccounts.class);
+        startActivity(intent);
+    }
+
+    /**
+     * Called when the user clicks the " Add cloud accounts  " button
+     */
+    public void addCloudAccounts(View v) {
+        Intent intent = new Intent(this, AddCloudAccount.class);
+        startActivity(intent);
+    }
+
 }
