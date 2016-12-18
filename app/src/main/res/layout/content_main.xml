@@ -13,15 +13,6 @@
     tools:context="com.emn.trustydrive.MainActivity"
     tools:showIn="@layout/app_bar_main">
 
-    <TextView
-        android:text="Welcome to TrustyDrive!"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/welcomeText"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-        android:layout_above="@+id/buttonAddAccount"
-        android:layout_centerHorizontal="true"/>
-
     <Button
         android:text="Access documents"
         android:layout_width="wrap_content"
@@ -48,5 +39,24 @@
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:onClick="addCloudAccounts"/>
+
+    <Button
+        android:text="Display Name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/buttonDisplayName"
+        android:onClick="displayName"
+        android:layout_above="@+id/buttonAddAccount"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:text="Welcome to TrustyDrive!"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/welcomeText"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:layout_above="@+id/buttonDisplayName"
+        android:layout_alignEnd="@+id/buttonManageAccounts"
+        android:layout_marginBottom="20dp" />
 
 </RelativeLayout>
