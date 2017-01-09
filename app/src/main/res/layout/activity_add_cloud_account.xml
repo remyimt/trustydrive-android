@@ -25,7 +25,8 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:id="@+id/buttonDropbox"
-        android:layout_above="@+id/buttonGoogleDrive" />
+        android:layout_above="@+id/buttonGoogleDrive"
+        android:onClick="addDropboxAccount" />
 
     <Button
         android:text="Google Drive"

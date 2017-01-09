@@ -41,7 +41,7 @@
         android:onClick="addCloudAccounts"/>
 
     <Button
-        android:text="Display Name"
+        android:text="Display Email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/buttonDisplayName"
