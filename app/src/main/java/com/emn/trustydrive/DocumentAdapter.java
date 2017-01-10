@@ -1,13 +1,11 @@
 package com.emn.trustydrive;
 
 import android.content.Context;
-import android.media.Image;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -50,15 +48,17 @@ public class DocumentAdapter extends BaseAdapter {
             LinearLayout documentInfo = (LinearLayout) convertView.findViewById(R.id.documentInfo);
             ImageButton fileOptionsButton = (ImageButton) convertView.findViewById(R.id.fileOptionsButton);
             ImageView imageIcon = (ImageView) convertView.findViewById(R.id.imageIcon);
-            convertView.setTag(new DocumentMetadataViewHolder(nameTextView, sizeAndDateTextView, documentInfo, fileOptionsButton, imageIcon));
+            ImageView storedStatusImage = (ImageView) convertView.findViewById(R.id.storedStatusImage);
+            convertView.setTag(new DocumentMetadataViewHolder(nameTextView, sizeAndDateTextView, documentInfo, fileOptionsButton, imageIcon, storedStatusImage));
         }
         DocumentMetadata doc = docs.get(position);
         documentMetadataViewHolder = (DocumentMetadataViewHolder) convertView.getTag();
         documentMetadataViewHolder.nameTextView.setText(doc.getFileName());
         documentMetadataViewHolder.sizeAndDateTextView.setText(doc.displaySize() + ", " + doc.displayDate());
-        documentMetadataViewHolder.imageIcon.setBackgroundResource(0);
         documentMetadataViewHolder.documentInfo.setTag(position);
         documentMetadataViewHolder.fileOptionsButton.setTag(position);
+        int storedOnDeviceIcon = doc.isSavedOnDevice() ? R.mipmap.on_device_icon : 0;
+        documentMetadataViewHolder.storedStatusImage.setImageResource(storedOnDeviceIcon);
         return convertView;
     }
 
@@ -72,13 +72,15 @@ public class DocumentAdapter extends BaseAdapter {
         final LinearLayout documentInfo;
         final ImageButton fileOptionsButton;
         final ImageView imageIcon;
+        final ImageView storedStatusImage;
 
-        private DocumentMetadataViewHolder(TextView nameTextView, TextView sizeAndDateTextView, LinearLayout documentInfo, ImageButton fileOptionsButton, ImageView imageIcon) {
+        private DocumentMetadataViewHolder(TextView nameTextView, TextView sizeAndDateTextView, LinearLayout documentInfo, ImageButton fileOptionsButton, ImageView imageIcon, ImageView storedStatusImage) {
             this.nameTextView = nameTextView;
             this.sizeAndDateTextView = sizeAndDateTextView;
             this.documentInfo = documentInfo;
             this.fileOptionsButton = fileOptionsButton;
             this.imageIcon = imageIcon;
+            this.storedStatusImage = storedStatusImage;
         }
     }
 

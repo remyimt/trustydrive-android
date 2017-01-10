@@ -6,16 +6,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:layout_height="wrap_content"
-        android:src="@drawable/file_icon"
+    <RelativeLayout
         android:layout_width="wrap_content"
-        android:background="@android:color/transparent"
-        android:contentDescription="file icon"
-        android:layout_centerVertical="true"
-        android:id="@+id/imageIcon" />
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true">
+
+        <ImageView
+            android:layout_height="wrap_content"
+            android:src="@drawable/file_icon"
+            android:layout_width="wrap_content"
+            android:contentDescription="file icon"
+            android:id="@+id/imageIcon"
+            android:layout_centerInParent="true"/>
+
+        <ImageView
+            android:id="@+id/storedStatusImage"
+            android:src="@mipmap/on_device_icon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="15dp"/>
+
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/documentInfo"
@@ -24,7 +36,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
         android:layout_marginEnd="50dp"
-        android:layout_centerVertical="true">
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_centerVertical="true"
+        android:onClick="openFile">
 
         <TextView
             android:text="nom"
@@ -37,7 +52,7 @@
         <TextView
             android:text="taille et date"
             android:id="@+id/sizeAndDateTextView"
-            android:layout_width="match_parent"
+            android:layout_width="214dp"
             android:layout_height="wrap_content"
             android:textSize="14sp"
             android:textColor="@color/cast_expanded_controller_ad_label_background_color" />
@@ -49,11 +64,11 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
         android:src="@drawable/three_dots"
-        android:layout_width="wrap_content"
         android:background="@android:color/transparent"
         android:contentDescription="three vertical dots"
         android:layout_centerVertical="true"
         android:layout_alignParentEnd="true"
-        android:onClick="displayFileOptions"/>
+        android:onClick="displayFileOptions"
+        android:layout_width="50dp" />
 
 </RelativeLayout>

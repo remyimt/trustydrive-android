@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_access_documents"
     android:layout_width="match_parent"
@@ -10,19 +11,23 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.emn.trustydrive.DocumentListActivity">
 
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:layout_marginBottom="15dp"
+        android:layout_marginEnd="15dp"
+        android:id="@+id/floatingActionButton"
+        app:srcCompat="@drawable/plus"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        app:backgroundTint="@color/colorPrimary"
+        android:onClick="addFileOrFolder"/>
+
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/listView"
-        android:layout_above="@+id/button2"
-        android:layout_centerHorizontal="true"/>
-
-    <Button
-        android:text="Add document"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/button2"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:onClick="chooseFile" />
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
 </RelativeLayout>

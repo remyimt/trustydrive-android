@@ -65,7 +65,7 @@ public class DocumentListActivity extends AppCompatActivity {
     public void deleteFile(int position) {
         documentAdapter.deleteDocument(position);
         documentAdapter.notifyDataSetChanged();
-        Toast.makeText(DocumentListActivity.this, "Document supprimé", Toast.LENGTH_SHORT).show();
+        Toast.makeText(DocumentListActivity.this, "File deleted", Toast.LENGTH_SHORT).show();
     }
 
     public void displayFileOptions(View view) {
@@ -74,8 +74,23 @@ public class DocumentListActivity extends AppCompatActivity {
         dialog.show(getFragmentManager(), null);
     }
 
-    public void storeOrDelete(int filePosition) {
-        documentAdapter.getDocs().get(filePosition).storeOrDelete();
+    public void toggleSavedOnDeviceStatus(int filePosition) {
+        //TODO: stocker ou supprimer le fichier sur le tel pour de vrai
+        DocumentMetadata doc = documentAdapter.getDocs().get(filePosition);
+        doc.toggleSavedOnDeviceStatus();
         documentAdapter.notifyDataSetChanged();
+        String message = doc.isSavedOnDevice() ? "File saved on device" : "File deleted from device";
+        Toast.makeText(DocumentListActivity.this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    public void openFile(View view) {
+        //TODO: ouvrir le fichier
+        DocumentMetadata doc = documentAdapter.getDocs().get((int) view.getTag());
+        Toast.makeText(DocumentListActivity.this, "Todo: Open file", Toast.LENGTH_SHORT).show();
+    }
+
+    public void addFileOrFolder(View view) {
+        AddFileOrFolderDialogFragment dialog = new AddFileOrFolderDialogFragment();
+        dialog.show(getFragmentManager(), null);
     }
 }

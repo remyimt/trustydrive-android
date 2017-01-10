@@ -11,7 +11,7 @@ public class FileOptionsDialogFragment extends DialogFragment {
 
     private String[] fileOptions = new String[]{
             "Open",
-            "Store one device",
+            "Save on device",
             "Delete",
             "Rename",
             "Details"
@@ -24,14 +24,14 @@ public class FileOptionsDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         this.file = DocumentListActivity.fakeDocuments.get(filePosition);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        if (file.isStoredOnDevice()) {
+        if (file.isSavedOnDevice()) {
             fileOptions[1] = "Delete from device";
         }
         builder.setItems(fileOptions, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case 1:
-                        ((DocumentListActivity) FileOptionsDialogFragment.this.getActivity()).storeOrDelete(getFilePosition());
+                        ((DocumentListActivity) FileOptionsDialogFragment.this.getActivity()).toggleSavedOnDeviceStatus(getFilePosition());
                         break;
                     case 2:
                         ((DocumentListActivity) FileOptionsDialogFragment.this.getActivity()).deleteFile(getFilePosition());

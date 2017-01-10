@@ -18,7 +18,7 @@ public class DocumentMetadata implements Serializable {
     private int id;
     private boolean storedOnDevice;
 
-    public boolean isStoredOnDevice() {
+    public boolean isSavedOnDevice() {
         return storedOnDevice;
     }
 
@@ -76,7 +76,7 @@ public class DocumentMetadata implements Serializable {
         return String.valueOf(getSize()) + " octets";
     }
 
-    public void storeOrDelete() {
+    public void toggleSavedOnDeviceStatus() {
         this.storedOnDevice = !storedOnDevice;
     }
 }
