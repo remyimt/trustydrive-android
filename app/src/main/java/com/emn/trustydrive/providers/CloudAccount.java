@@ -1,23 +1,32 @@
 package com.emn.trustydrive.providers;
 
-import java.io.File;
+/**
+ * Created by Maxime on 09/01/2017.
+ */
 
-public interface CloudAccount {
+public abstract class CloudAccount implements ICloudAccount {
 
-    String apiToken = null;
-    String emai = null;
+    private String email;
+    private String apiToken;
 
-    File getMetadata(String password);
+    public CloudAccount(String email) {
+        this.email = email;
+    }
 
-    void updateMetadata(File metadata, String passwordOrName);
+    public String getApiToken() {
+        return apiToken;
+    }
 
-    void uploadFile(File file);
+    public void setApiToken(String apiToken) {
+        this.apiToken = apiToken;
+    }
 
-    File downloadFile(String name);
+    public String getEmail() {
+        return email;
+    }
 
-    /**
-    * Available storage in MB
-    */
-    int remainingSpace();
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
 }

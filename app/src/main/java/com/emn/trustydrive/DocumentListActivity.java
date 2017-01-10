@@ -3,10 +3,7 @@ package com.emn.trustydrive;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -17,9 +14,10 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class AccessDocumentsActivity extends AppCompatActivity {
+public class DocumentListActivity extends AppCompatActivity {
 
     private static final String ACCESS_TOKEN = "7U7cWDNwdEQAAAAAAAADU96AWKj6vpcitLAjzTr1lsCwXtK_zsxjw3W5ggbN5kDZ";
+    public static ArrayList<DocumentMetadata> fakeDocuments = new ArrayList<>();
     private DbxClientV2 client;
     private DocumentAdapter documentAdapter;
     private ListView listView;
@@ -32,12 +30,12 @@ public class AccessDocumentsActivity extends AppCompatActivity {
         DbxRequestConfig config = new DbxRequestConfig("dropbox/java-tutorial", "en_US");
         this.client = new DbxClientV2(config, ACCESS_TOKEN);
 
-        ArrayList<DocumentMetadata> fakeDocuments = new ArrayList<>();
-        for (int i = 1; i <= 20; i++) {
+        fakeDocuments = new ArrayList<>();
+        for (int i = 1; i <= 15; i++) {
             DocumentMetadata doc = new DocumentMetadata("Document " + i, new Date(117, 0, i), 10, i);
             fakeDocuments.add(doc);
         }
-        documentAdapter = new DocumentAdapter(AccessDocumentsActivity.this, fakeDocuments);
+        documentAdapter = new DocumentAdapter(DocumentListActivity.this, fakeDocuments);
         listView = (ListView) findViewById(R.id.listView);
         listView.setAdapter(documentAdapter);
     }
@@ -64,18 +62,20 @@ public class AccessDocumentsActivity extends AppCompatActivity {
             }
     }
 
-    public void deleteFile(View v) {
-        int position = (int) v.getTag();
+    public void deleteFile(int position) {
         documentAdapter.deleteDocument(position);
         documentAdapter.notifyDataSetChanged();
-        Toast.makeText(AccessDocumentsActivity.this, "Document supprimé", Toast.LENGTH_SHORT).show();
+        Toast.makeText(DocumentListActivity.this, "Document supprimé", Toast.LENGTH_SHORT).show();
     }
 
-    public void displayDocumentDetails(View v) {
-        Intent intent = new Intent(this, DocumentDetailsActivity.class);
-        int position = (int) v.getTag();
-        intent.putExtra("DOCUMENT_METADATA", documentAdapter.getDocumentMetadata(position));
-        startActivity(intent);
+    public void displayFileOptions(View view) {
+        FileOptionsDialogFragment dialog = new FileOptionsDialogFragment();
+        dialog.setFilePosition((int) view.getTag());
+        dialog.show(getFragmentManager(), null);
     }
 
+    public void storeOrDelete(int filePosition) {
+        documentAdapter.getDocs().get(filePosition).storeOrDelete();
+        documentAdapter.notifyDataSetChanged();
+    }
 }

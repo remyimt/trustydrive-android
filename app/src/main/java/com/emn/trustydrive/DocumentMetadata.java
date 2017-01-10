@@ -16,6 +16,15 @@ public class DocumentMetadata implements Serializable {
     private Date date;
     private int size;
     private int id;
+    private boolean storedOnDevice;
+
+    public boolean isStoredOnDevice() {
+        return storedOnDevice;
+    }
+
+    public void setStoredOnDevice(boolean storedOnDevice) {
+        this.storedOnDevice = storedOnDevice;
+    }
 
     final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -24,6 +33,7 @@ public class DocumentMetadata implements Serializable {
         this.date = date;
         this.size = size;
         this.id = id;
+        this.storedOnDevice = false;
     }
 
     public String getFileName() {
@@ -64,5 +74,9 @@ public class DocumentMetadata implements Serializable {
 
     public String displaySize() {
         return String.valueOf(getSize()) + " octets";
+    }
+
+    public void storeOrDelete() {
+        this.storedOnDevice = !storedOnDevice;
     }
 }

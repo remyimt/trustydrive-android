@@ -1,32 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.emn.trustydrive.AccessDocumentsActivity">
+    tools:context="com.emn.trustydrive.DocumentListActivity"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <TextView
-        android:text="nom"
-        android:id="@+id/nameTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"></TextView>
-
-    <Button android:text="Détails"
-        android:id="@+id/detailsButton"
-        android:layout_width="wrap_content"
+    <ImageView
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="130dp"
-        android:layout_marginRight="5dp"
-        android:onClick="displayDocumentDetails">
-    </Button>
-
-    <Button android:text="Supprimer"
-        android:id="@+id/deleteButton"
+        android:src="@drawable/file_icon"
         android:layout_width="wrap_content"
+        android:background="@android:color/transparent"
+        android:contentDescription="file icon"
+        android:layout_centerVertical="true"
+        android:id="@+id/imageIcon" />
+
+    <LinearLayout
+        android:id="@+id/documentInfo"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:onClick="deleteFile"
-        android:layout_alignParentEnd="true">
-    </Button>
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp"
+        android:layout_centerVertical="true">
+
+        <TextView
+            android:text="nom"
+            android:id="@+id/nameTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@color/cast_expanded_controller_background_color" />
+
+        <TextView
+            android:text="taille et date"
+            android:id="@+id/sizeAndDateTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/cast_expanded_controller_ad_label_background_color" />
+
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/fileOptionsButton"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:src="@drawable/three_dots"
+        android:layout_width="wrap_content"
+        android:background="@android:color/transparent"
+        android:contentDescription="three vertical dots"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:onClick="displayFileOptions"/>
 
 </RelativeLayout>

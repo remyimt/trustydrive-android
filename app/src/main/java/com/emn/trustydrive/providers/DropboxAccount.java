@@ -2,7 +2,12 @@ package com.emn.trustydrive.providers;
 
 import java.io.File;
 
-public class DropboxAccount implements CloudAccount {
+public class DropboxAccount extends CloudAccount {
+
+    public DropboxAccount(String email) {
+        super(email);
+    }
+
     @Override
     public File getMetadata(String password) {
         return null;

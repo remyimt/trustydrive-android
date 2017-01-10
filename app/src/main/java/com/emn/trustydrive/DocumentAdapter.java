@@ -1,12 +1,16 @@
 package com.emn.trustydrive;
 
 import android.content.Context;
+import android.media.Image;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.List;
@@ -38,33 +42,43 @@ public class DocumentAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        DocumentMetadataViewHolder bookViewHolder;
+        DocumentMetadataViewHolder documentMetadataViewHolder;
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.view_item_document, parent, false);
             TextView nameTextView = (TextView) convertView.findViewById(R.id.nameTextView);
-            Button detailsButton = (Button) convertView.findViewById(R.id.detailsButton);
-            Button deleteButton = (Button) convertView.findViewById(R.id.deleteButton);
-            deleteButton.setTag(position);
-            detailsButton.setTag(position);
-            convertView.setTag(new DocumentMetadataViewHolder(nameTextView, detailsButton, deleteButton));
+            TextView sizeAndDateTextView = (TextView) convertView.findViewById(R.id.sizeAndDateTextView);
+            LinearLayout documentInfo = (LinearLayout) convertView.findViewById(R.id.documentInfo);
+            ImageButton fileOptionsButton = (ImageButton) convertView.findViewById(R.id.fileOptionsButton);
+            ImageView imageIcon = (ImageView) convertView.findViewById(R.id.imageIcon);
+            convertView.setTag(new DocumentMetadataViewHolder(nameTextView, sizeAndDateTextView, documentInfo, fileOptionsButton, imageIcon));
         }
         DocumentMetadata doc = docs.get(position);
-        bookViewHolder = (DocumentMetadataViewHolder) convertView.getTag();
-        bookViewHolder.nameTextView.setText(doc.getFileName());
-        bookViewHolder.deleteButton.setTag(position);
-        bookViewHolder.detailsButton.setTag(position);
+        documentMetadataViewHolder = (DocumentMetadataViewHolder) convertView.getTag();
+        documentMetadataViewHolder.nameTextView.setText(doc.getFileName());
+        documentMetadataViewHolder.sizeAndDateTextView.setText(doc.displaySize() + ", " + doc.displayDate());
+        documentMetadataViewHolder.imageIcon.setBackgroundResource(0);
+        documentMetadataViewHolder.documentInfo.setTag(position);
+        documentMetadataViewHolder.fileOptionsButton.setTag(position);
         return convertView;
+    }
+
+    public List<DocumentMetadata> getDocs() {
+        return docs;
     }
 
     private static class DocumentMetadataViewHolder {
         final TextView nameTextView;
-        final TextView detailsButton;
-        final Button deleteButton;
+        final TextView sizeAndDateTextView;
+        final LinearLayout documentInfo;
+        final ImageButton fileOptionsButton;
+        final ImageView imageIcon;
 
-        private DocumentMetadataViewHolder(TextView nameTextView, Button detailsButton, Button deleteButton) {
+        private DocumentMetadataViewHolder(TextView nameTextView, TextView sizeAndDateTextView, LinearLayout documentInfo, ImageButton fileOptionsButton, ImageView imageIcon) {
             this.nameTextView = nameTextView;
-            this.detailsButton = detailsButton;
-            this.deleteButton = deleteButton;
+            this.sizeAndDateTextView = sizeAndDateTextView;
+            this.documentInfo = documentInfo;
+            this.fileOptionsButton = fileOptionsButton;
+            this.imageIcon = imageIcon;
         }
     }
 

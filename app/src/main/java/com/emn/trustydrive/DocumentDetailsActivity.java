@@ -10,7 +10,8 @@ public class DocumentDetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_document_details);
-        DocumentMetadata docMetadata = (DocumentMetadata) getIntent().getSerializableExtra("DOCUMENT_METADATA");
+        int position = getIntent().getIntExtra("DOCUMENT_METADATA", -1);
+        DocumentMetadata docMetadata = (DocumentMetadata) DocumentListActivity.fakeDocuments.get(position) ;
 
         TextView nameTextView = (TextView) findViewById(R.id.documentName);
         TextView sizeTextView = (TextView) findViewById(R.id.documentSize);
