@@ -48,7 +48,7 @@ public class FileOptionsDialogFragment extends DialogFragment {
     }
 
     private void showFileDetails() {
-        Intent intent = new Intent(getContext(), DocumentDetailsActivity.class);
+        Intent intent = new Intent(getActivity(), DocumentDetailsActivity.class);
         intent.putExtra("DOCUMENT_METADATA", getFilePosition());
         startActivity(intent);
     }
