@@ -26,8 +26,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_main);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         ArrayList<String> emails = new ArrayList<>();
         SharedPreferences prefs = getSharedPreferences("trustyDrive", MODE_PRIVATE);
+//        prefs.edit().putString("accounts", null).apply(); // Use to reset log accounts
         ArrayList<CloudAccountData> accountsData = new Gson().fromJson(prefs.getString("accounts", "[]"),
                 new TypeToken<ArrayList<CloudAccountData>>() {}.getType());
         for (CloudAccountData accountData : accountsData)

@@ -1,6 +1,5 @@
 package com.emn.trustydrive;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -45,8 +44,7 @@ public class AddCloudAccount extends AppCompatActivity {
                         CloudAccountData newAccount = new CloudAccountData(token, ICloudAccount.DROPBOX, email);
                         accounts.add(newAccount);
                         prefs.edit().putString("accounts", gson.toJson(accounts)).apply();
-                        Intent intent = new Intent(AddCloudAccount.this, MainActivity.class);
-                        startActivity(intent);
+                        finish();
                     }
                     public void onError(Exception e) {
                         e.printStackTrace(); //ToDo: Display error message
