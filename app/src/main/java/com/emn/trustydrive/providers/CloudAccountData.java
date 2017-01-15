@@ -1,11 +1,14 @@
 package com.emn.trustydrive.providers;
 
-public abstract class CloudAccount implements ICloudAccount {
+/**
+ * Needed for serialization (in order to save), because we can't serialize abstract classes
+ */
+public class CloudAccountData {
     private String token;
-    private String email;
     private int provider;
+    private String email;
 
-    public CloudAccount(String token, String email, int provider) {
+    public CloudAccountData(String token, int provider, String email) {
         this.token = token;
         this.provider = provider;
         this.email = email;
