@@ -83,4 +83,9 @@ public class DocumentListActivity extends AppCompatActivity {
         AddFileOrFolderDialogFragment dialog = new AddFileOrFolderDialogFragment();
         dialog.show(getFragmentManager(), null);
     }
+
+    public void launchSettingsActivity(View view) {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
 }
