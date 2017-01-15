@@ -7,18 +7,12 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.dropbox.core.DbxRequestConfig;
-import com.dropbox.core.v2.DbxClientV2;
-
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Date;
 
 public class DocumentListActivity extends AppCompatActivity {
-
-    private static final String ACCESS_TOKEN = "7U7cWDNwdEQAAAAAAAADU96AWKj6vpcitLAjzTr1lsCwXtK_zsxjw3W5ggbN5kDZ";
     public static ArrayList<DocumentMetadata> fakeDocuments = new ArrayList<>();
-    private DbxClientV2 client;
     private DocumentAdapter documentAdapter;
     private ListView listView;
 
@@ -26,10 +20,6 @@ public class DocumentListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_access_documents);
-
-        DbxRequestConfig config = new DbxRequestConfig("dropbox/java-tutorial", "en_US");
-        this.client = new DbxClientV2(config, ACCESS_TOKEN);
-
         fakeDocuments = new ArrayList<>();
         for (int i = 1; i <= 15; i++) {
             DocumentMetadata doc = new DocumentMetadata("Document " + i, new Date(117, 0, i), 10, i);
@@ -56,7 +46,7 @@ public class DocumentListActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK)
             try {
                 FileInputStream in = (FileInputStream) getContentResolver().openInputStream(data.getData());
-                new UploadFile().execute(client, in);
+                Toast.makeText(this, "ToDo", Toast.LENGTH_LONG).show(); //ToDo : upload file
             } catch (Exception e) {
                 e.printStackTrace();
             }

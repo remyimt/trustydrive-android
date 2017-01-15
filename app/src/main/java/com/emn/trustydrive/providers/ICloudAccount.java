@@ -1,20 +1,22 @@
 package com.emn.trustydrive.providers;
 
-import java.io.File;
+import java.io.FileInputStream;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 
 public interface ICloudAccount {
+    int DROPBOX = 0;
 
-    File getMetadata(String password);
+    FileInputStream getMetadata(String password) throws NoSuchAlgorithmException, UnsupportedEncodingException;
 
-    void updateMetadata(File metadata, String passwordOrName);
+    void updateMetadata(FileInputStream metadata);
 
-    void uploadFile(File file);
+    void uploadFile(FileInputStream file, String fileName);
 
-    File downloadFile(String name);
+    FileInputStream downloadFile(String name);
 
     /**
-    * Available storage in MB
-    */
+     * Available storage in MB
+     */
     int remainingSpace();
-
 }
