@@ -10,39 +10,67 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.emn.trustydrive.MainActivity">
 
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:id="@+id/accountsListView"
-        android:layout_centerHorizontal="true"/>
+
 
     <Button
         android:text="Add cloud account"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/addAccountButton"
-        android:layout_below="@id/accountsListView"
-        android:layout_centerHorizontal="true"
-        android:onClick="addCloudAccount" />
+        android:onClick="addCloudAccount"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
 
-    <EditText
+    <RelativeLayout
+        android:id="@+id/passwordLayout"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="100dp">
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:id="@+id/passwordEditText"
+            android:hint="Password"
+            android:textAlignment="center"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" />
+
+        <Button
+            android:text="Login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/loginButton"
+            android:onClick="login"
+            android:layout_marginEnd="17dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true" />
+
+    </RelativeLayout>
+
+    <TextView
+        android:text="TrustyDrive"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="textPassword"
-        android:layout_below="@+id/addAccountButton"
+        android:id="@+id/textView3"
+        android:textSize="50sp"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:id="@+id/passwordEditText"
-        android:hint="Password"
-        android:textAlignment="center" />
+        android:layout_marginTop="59dp"
+        android:textColor="@android:color/black" />
 
-    <Button
-        android:text="Login"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/loginButton"
-        android:layout_below="@+id/passwordEditText"
-        android:layout_centerHorizontal="true"
-        android:onClick="login" />
+    <ListView
+        android:layout_width="match_parent"
+        android:id="@+id/accountsListView"
+        android:layout_below="@id/passwordLayout"
+        android:layout_above="@+id/addAccountButton"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="10dp"
+        android:layout_height="170dp" />
 
 
 </RelativeLayout>
