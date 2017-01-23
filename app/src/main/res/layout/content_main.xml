@@ -60,7 +60,7 @@
     <ListView
         android:layout_width="match_parent"
         android:id="@+id/accountsListView"
-        android:layout_height="150dp" />
+        android:layout_height="200dp" />
 
     <Button
         android:text="Add cloud account"
