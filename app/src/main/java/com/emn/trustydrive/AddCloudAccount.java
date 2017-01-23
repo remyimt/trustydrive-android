@@ -21,7 +21,7 @@ import java.util.ArrayList;
 
 public class AddCloudAccount extends AppCompatActivity {
     private boolean authDropboxLaunched;
-    private ProgressDialog progress;
+    private ProgressDialog loadingDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,14 +63,14 @@ public class AddCloudAccount extends AppCompatActivity {
     }
 
     public void showLoading() {
-        progress = new ProgressDialog(this);
-        progress.setTitle("Loading");
-        progress.setMessage("Please wait...");
-        progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
-        progress.show();
+        loadingDialog = new ProgressDialog(this);
+        loadingDialog.setTitle("Loading");
+        loadingDialog.setMessage("Please wait...");
+        loadingDialog.setCancelable(false); // disable dismiss by tapping outside of the dialog
+        loadingDialog.show();
     }
 
     public void dismissLoading() {
-        progress.dismiss();
+        loadingDialog.dismiss();
     }
 }
