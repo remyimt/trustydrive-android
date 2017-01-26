@@ -22,8 +22,6 @@ import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 
-import static com.emn.trustydrive.providers.ICloudAccount.DROPBOX;
-
 public class MainActivity extends AppCompatActivity {
     private ArrayList<CloudAccount> cloudAccounts = new ArrayList<>();
     private SharedPreferences sharedPreferences;

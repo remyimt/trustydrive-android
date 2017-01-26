@@ -12,6 +12,7 @@ import com.dropbox.core.android.Auth;
 import com.dropbox.core.v2.DbxClientV2;
 import com.emn.trustydrive.providers.CloudAccountData;
 import com.emn.trustydrive.providers.ICloudAccount;
+import com.emn.trustydrive.providers.Provider;
 import com.emn.trustydrive.providers.dropbox.GetEmailTask;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -43,7 +44,7 @@ public class AddCloudAccount extends AppCompatActivity {
                         Gson gson = new Gson();
                         ArrayList<CloudAccountData> accounts = gson.fromJson(prefs.getString("accounts", "[]"),
                                 new TypeToken<ArrayList<CloudAccountData>>() {}.getType());
-                        CloudAccountData newAccount = new CloudAccountData(token, ICloudAccount.DROPBOX, email);
+                        CloudAccountData newAccount = new CloudAccountData(token, Provider.DROPBOX, email);
                         accounts.add(newAccount);
                         prefs.edit().putString("accounts", gson.toJson(accounts)).apply();
                         finish();
