@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.emn.trustydrive.MainActivity"
+    tools:context="com.emn.trustydrive.LoginActivity"
     android:orientation="vertical"
     android:focusableInTouchMode="true">
 
@@ -19,19 +19,12 @@
         android:id="@+id/passwordEditText"
         android:hint="Password"/>
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textPassword"
-        android:id="@+id/passwordConfirmationEditText"
-        android:hint="Password (confirmation)"/>
-
     <Button
-        android:text="Login/Register"
+        android:text="Login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/loginButton"
-        android:onClick="loginOrRegister"/>
+        android:onClick="checkPermission"/>
 
     <TextView
         android:text="Warning message"

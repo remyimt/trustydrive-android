@@ -9,7 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.emn.trustydrive.DocumentListActivity">
+    tools:context="com.emn.trustydrive.FileListActivity">
 
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
@@ -22,7 +22,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         app:backgroundTint="@color/colorPrimary"
-        android:onClick="addFileOrFolder"/>
+        android:onClick="displayAddOptions"/>
 
     <ListView
         android:layout_width="match_parent"
