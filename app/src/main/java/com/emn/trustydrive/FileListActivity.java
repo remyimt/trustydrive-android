@@ -27,7 +27,7 @@ public class FileListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_list);
         for (int i = 1; i <= 15; i++)
-            filesData.add(new FileData("File " + i, new Date(117, 0, i), 10));
+            filesData.add(new FileData("File " + i, new Date(117, 0, i), "", 10));
         fileAdapter = new FileAdapter(FileListActivity.this, filesData);
         ((ListView) findViewById(R.id.listView)).setAdapter(fileAdapter);
     }
