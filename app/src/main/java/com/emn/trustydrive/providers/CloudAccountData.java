@@ -5,10 +5,10 @@ package com.emn.trustydrive.providers;
  */
 public class CloudAccountData {
     private String token;
-    private int provider;
+    private Provider provider;
     private String email;
 
-    public CloudAccountData(String token, int provider, String email) {
+    public CloudAccountData(String token, Provider provider, String email) {
         this.token = token;
         this.provider = provider;
         this.email = email;
@@ -18,7 +18,7 @@ public class CloudAccountData {
         return token;
     }
 
-    public int getProvider() {
+    public Provider getProvider() {
         return provider;
     }
 

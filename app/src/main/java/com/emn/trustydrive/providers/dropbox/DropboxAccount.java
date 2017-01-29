@@ -4,6 +4,7 @@ import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.FileMetadata;
 import com.emn.trustydrive.providers.CloudAccount;
+import com.emn.trustydrive.providers.Provider;
 
 import java.io.FileInputStream;
 import java.io.UnsupportedEncodingException;
@@ -15,7 +16,7 @@ public class DropboxAccount extends CloudAccount {
     private String metaDataFileName;
 
     public DropboxAccount(String token, String email) {
-        super(token, email, CloudAccount.DROPBOX);
+        super(token, email, Provider.DROPBOX);
         DbxRequestConfig requestConfig = DbxRequestConfig.newBuilder("trustyDrive").build();
         client = new DbxClientV2(requestConfig, token);
     }

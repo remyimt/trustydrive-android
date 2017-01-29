@@ -16,26 +16,13 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         android:layout_marginBottom="11dp"
-        android:layout_marginEnd="75dp"
+        android:layout_marginEnd="6dp"
         android:id="@+id/floatingActionButton"
         app:srcCompat="@drawable/plus"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         app:backgroundTint="@color/colorPrimary"
         android:onClick="addFileOrFolder"/>
-
-    <android.support.design.widget.FloatingActionButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:layout_marginBottom="11dp"
-        android:layout_marginEnd="6dp"
-        android:id="@+id/settingsActionButton"
-        app:srcCompat="@drawable/settings_icon"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        app:backgroundTint="@color/half_black"
-        android:onClick="launchSettingsActivity"/>
 
     <ListView
         android:layout_width="match_parent"

@@ -3,9 +3,9 @@ package com.emn.trustydrive.providers;
 public abstract class CloudAccount implements ICloudAccount {
     private String token;
     private String email;
-    private int provider;
+    private Provider provider;
 
-    public CloudAccount(String token, String email, int provider) {
+    public CloudAccount(String token, String email, Provider provider) {
         this.token = token;
         this.provider = provider;
         this.email = email;
@@ -15,7 +15,7 @@ public abstract class CloudAccount implements ICloudAccount {
         return token;
     }
 
-    public int getProvider() {
+    public Provider getProvider() {
         return provider;
     }
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_access_documents"
     android:layout_width="match_parent"
@@ -8,41 +8,56 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.emn.trustydrive.MainActivity">
+    tools:context="com.emn.trustydrive.MainActivity"
+    android:orientation="vertical"
+    android:focusableInTouchMode="true">
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:id="@+id/passwordEditText"
+        android:hint="Password"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:id="@+id/passwordConfirmationEditText"
+        android:hint="Password (confirmation)"/>
+
+    <Button
+        android:text="Login/Register"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/loginButton"
+        android:onClick="loginOrRegister"/>
+
+    <TextView
+        android:text="Warning message"
+        android:textColor="@android:color/holo_red_dark"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/warningTextView"/>
+
+    <TextView
+        android:text="Registered accounts:"
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/noAccountRegisteredTextView"/>
 
     <ListView
         android:layout_width="match_parent"
-        android:layout_height="150dp"
         android:id="@+id/accountsListView"
-        android:layout_centerHorizontal="true"/>
+        android:layout_height="220dp" />
 
     <Button
         android:text="Add cloud account"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/addAccountButton"
-        android:layout_below="@id/accountsListView"
-        android:layout_centerHorizontal="true"
-        android:onClick="addCloudAccount" />
+        android:onClick="addCloudAccount"/>
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="textPassword"
-        android:layout_below="@+id/addAccountButton"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/passwordEditText"
-        android:hint="Password"
-        android:textAlignment="center" />
-
-    <Button
-        android:text="Login"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/loginButton"
-        android:layout_below="@+id/passwordEditText"
-        android:layout_centerHorizontal="true"
-        android:onClick="login" />
-
-
-</RelativeLayout>
+</LinearLayout>

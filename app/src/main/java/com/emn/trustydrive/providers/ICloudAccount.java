@@ -5,7 +5,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 
 public interface ICloudAccount {
-    int DROPBOX = 0;
 
     FileInputStream getMetadata(String password) throws NoSuchAlgorithmException, UnsupportedEncodingException;
 
