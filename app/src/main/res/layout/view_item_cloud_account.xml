@@ -5,7 +5,8 @@
     tools:context="com.emn.trustydrive.SettingsActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_centerVertical="true">
+    android:layout_centerVertical="true"
+    android:minHeight="100dp">
 
         <ImageView
             android:layout_height="50dp"
@@ -13,7 +14,8 @@
             android:layout_width="50dp"
             android:contentDescription="provider icon"
             android:id="@+id/cloudLogo"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center"
+            android:layout_marginRight="15dp"/>
 
         <TextView
             android:text="email"
