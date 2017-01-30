@@ -31,7 +31,7 @@ public class LoginActivity extends AppCompatActivity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.content_main);
+        setContentView(R.layout.activity_login);
 //        getSharedPreferences("trustyDrive", MODE_PRIVATE).edit().remove("accounts").remove("firstConnection").apply(); // Use to reset the app
     }
 
@@ -61,7 +61,7 @@ public class LoginActivity extends AppCompatActivity {
             loginButton.setClickable(false);
             loginButton.setAlpha(.5f);
         } else {
-            warningTextView.setText(R.string.empty);
+            warningTextView.setText("");
             loginButton.setClickable(true);
             loginButton.setAlpha(1.0f);
         }

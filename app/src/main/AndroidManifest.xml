@@ -22,12 +22,12 @@
         </activity>
         <activity android:name=".FileListActivity" />
         <activity android:name=".AddAccountActivity"
-            android:label="New cloud account"/>
+            android:label="@string/addAccount"/>
         <activity android:name=".FileDetailsActivity"
-            android:label="File details"/>
+            android:label="@string/fileDetails"/>
         <activity
             android:name=".SettingsActivity"
-            android:label="Settings"/>
+            android:label="@string/settings"/>
         <activity
             android:name="com.dropbox.core.android.AuthActivity"
             android:configChanges="orientation|keyboard"

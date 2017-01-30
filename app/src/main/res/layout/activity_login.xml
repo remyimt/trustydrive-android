@@ -17,24 +17,24 @@
         android:layout_height="wrap_content"
         android:inputType="textPassword"
         android:id="@+id/passwordEditText"
-        android:hint="Password"/>
+        android:hint="@string/password"/>
 
     <Button
-        android:text="Login"
+        android:text="@string/login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/loginButton"
         android:onClick="checkPermission"/>
 
     <TextView
-        android:text="Warning message"
+        android:text="@string/notEnoughAccountsWarning"
         android:textColor="@android:color/holo_red_dark"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/warningTextView"/>
 
     <TextView
-        android:text="Registered accounts:"
+        android:text="@string/registeredAccounts"
         android:textColor="@android:color/black"
         android:textSize="20sp"
         android:layout_width="match_parent"
@@ -47,7 +47,7 @@
         android:layout_height="220dp" />
 
     <Button
-        android:text="Add cloud account"
+        android:text="@string/addAccount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/addAccountButton"

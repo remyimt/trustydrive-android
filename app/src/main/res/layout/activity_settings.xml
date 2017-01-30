@@ -11,31 +11,38 @@
     tools:context="com.emn.trustydrive.SettingsActivity">
 
     <TextView
-        android:text="Registered accounts:"
+        android:id="@+id/registeredAccountsTextView"
+        android:text="@string/registeredAccounts"
         android:textColor="@android:color/black"
         android:textSize="20sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/registeredAccountsTextView"
         android:layout_marginBottom="10dp"/>
-
-    <Button
-        android:text="Log out"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/logOutButton"
-        android:onClick="logOut" />
 
     <ListView
         android:id="@+id/registeredAccountsListView"
+        android:layout_centerHorizontal="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/registeredAccountsTextView"
+        android:layout_above="@id/addAccountButton"/>
+
+    <Button
+        android:id="@+id/addAccountButton"
+        android:text="@string/addAccount"
         android:layout_centerHorizontal="true"
-        android:layout_above="@id/logOutButton"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/logoutButton"
+        android:onClick="addAccount"/>
 
-
+    <Button
+        android:id="@+id/logoutButton"
+        android:text="@string/logout"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:onClick="logout"/>
 
 </RelativeLayout>

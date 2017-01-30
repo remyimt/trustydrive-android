@@ -19,15 +19,22 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+    }
+
+    protected void onResume() {
+        super.onResume();
         List<Account> accounts = new Gson().fromJson(getSharedPreferences("trustyDrive", MODE_PRIVATE)
                 .getString("accounts", "[]"), new TypeToken<ArrayList<Account>>() {}.getType());
         ((ListView) findViewById(R.id.registeredAccountsListView)).setAdapter(new AccountAdapter(this, accounts));
     }
 
-    public void logOut(View view) {
+    public void logout(View view) {
         Intent intent = new Intent(this, LoginActivity.class);
-        // set the new task and clear flags
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
+    }
+
+    public void addAccount(View view) {
+        startActivity(new Intent(this, AddAccountActivity.class));
     }
 }

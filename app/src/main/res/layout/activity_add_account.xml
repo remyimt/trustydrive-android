@@ -10,17 +10,8 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.emn.trustydrive.AddAccountActivity">
 
-    <TextView
-        android:text="Add a cloud account"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView2"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_above="@+id/buttonDropbox"/>
-
     <Button
-        android:text="DropBox"
+        android:text="Dropbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
@@ -34,7 +25,9 @@
         android:layout_height="wrap_content"
         android:id="@+id/buttonGoogleDrive"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:clickable="false"
+        android:alpha="0.5"/>
 
     <Button
         android:text="OneDrive"
@@ -42,6 +35,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/buttonOneDrive"
         android:layout_below="@+id/buttonGoogleDrive"
-        android:layout_centerHorizontal="true"/>
+        android:layout_centerHorizontal="true"
+        android:clickable="false"
+        android:alpha="0.5"/>
 
 </RelativeLayout>
