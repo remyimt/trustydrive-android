@@ -61,6 +61,7 @@ public class Account implements Parcelable {
         token = in.readString();
         email = in.readString();
         provider = Provider.valueOf(in.readString());
+        metadataFileName = in.readString();
     }
 
     @Override
@@ -68,6 +69,7 @@ public class Account implements Parcelable {
         dest.writeString(token);
         dest.writeString(email);
         dest.writeString(provider.name());
+        dest.writeString(metadataFileName);
     }
 
     @Override

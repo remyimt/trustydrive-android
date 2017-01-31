@@ -21,13 +21,15 @@
             </intent-filter>
         </activity>
         <activity android:name=".FileListActivity" />
-        <activity android:name=".AddAccountActivity"
-            android:label="@string/addAccount"/>
-        <activity android:name=".FileDetailsActivity"
-            android:label="@string/fileDetails"/>
+        <activity
+            android:name=".AddAccountActivity"
+            android:label="@string/addAccount" />
+        <activity
+            android:name=".FileDetailsActivity"
+            android:label="@string/fileDetails" />
         <activity
             android:name=".SettingsActivity"
-            android:label="@string/settings"/>
+            android:label="@string/settings" />
         <activity
             android:name="com.dropbox.core.android.AuthActivity"
             android:configChanges="orientation|keyboard"

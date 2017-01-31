@@ -6,12 +6,11 @@ import android.os.Environment;
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
 import com.emn.trustydrive.LoginActivity;
-import com.emn.trustydrive.metadata.ChunkData;
+import com.emn.trustydrive.metadata.Account;
 import com.emn.trustydrive.metadata.TrustyDrive;
 import com.google.gson.Gson;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,7 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
-    private List<ChunkData> chunksData;
+    private List<Account> accounts;
+    private String password;
     private LoginActivity callingActivity;
     private Callback callback;
     private List<Exception> exceptions;
@@ -32,8 +32,9 @@ public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
         void onError(List<Exception> e);
     }
 
-    public LoginTask(List<ChunkData> chunksData, LoginActivity callingActivity, Callback callback) {
-        this.chunksData = chunksData;
+    public LoginTask(List<Account> accounts, String password, LoginActivity callingActivity, Callback callback) {
+        this.accounts = accounts;
+        this.password = password;
         this.callingActivity = callingActivity;
         this.callback = callback;
         this.exceptions = new ArrayList<>();
@@ -42,14 +43,14 @@ public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
 
     protected TrustyDrive doInBackground(Object... objects) {
         List<InputStream> files = new ArrayList<>();
-        for (ChunkData chunkData : chunksData) {
+        for (Account account : accounts) {
             try {
-                switch (chunkData.getAccount().getProvider()) {
+                switch (account.getProvider()) {
                     case DROPBOX:
                         DbxClientV2 dbxClientV2 = new DbxClientV2(DbxRequestConfig.newBuilder("trustyDrive").build(),
-                                chunkData.getAccount().getToken());
+                                account.getToken());
                         if (!dbxClientV2.files().listFolder("").getEntries().isEmpty())
-                            files.add(dbxClientV2.files().download("/" + chunkData.getName()).getInputStream());
+                            files.add(dbxClientV2.files().download("/" + account.createHash(password)).getInputStream());
                         break;
                 }
             } catch (Exception e) {
@@ -59,7 +60,12 @@ public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
         try {
             if (files.size() > 0) {
                 FileOutputStream fOut = new FileOutputStream(new File(Environment.getExternalStorageDirectory(), "fOut"));
-                for (InputStream file : files) IOUtils.copy(file, fOut);
+                int byt;
+                int i = 0;
+                while (-1 != (byt = files.get(i%files.size()).read())) {
+                    fOut.write(byt);
+                    i++;
+                }
                 fOut.close();
                 return new Gson().fromJson(FileUtils.readFileToString(new File(Environment.getExternalStorageDirectory(),
                         "fOut"), StandardCharsets.UTF_8), TrustyDrive.class);
@@ -73,11 +79,7 @@ public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
     protected void onPostExecute(TrustyDrive metadata) {
         if (exceptions.size() > 0 || metadata == null)
             callback.onError(exceptions);
-        else {
-            for (ChunkData chunkData : chunksData)
-                chunkData.getAccount().setMetadataFileName(chunkData.getName());
-            callback.onTaskComplete(metadata);
-        }
+        else callback.onTaskComplete(metadata);
         callingActivity.dismissLoading();
     }
 }

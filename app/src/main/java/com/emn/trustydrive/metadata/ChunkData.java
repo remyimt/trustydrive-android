@@ -20,6 +20,10 @@ public class ChunkData implements Parcelable {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     protected ChunkData(Parcel in) {
         account = in.readParcelable(Account.class.getClassLoader());
         name = in.readString();

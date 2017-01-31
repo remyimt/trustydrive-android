@@ -1,8 +1,11 @@
 package com.emn.trustydrive;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,23 +15,34 @@ import android.widget.Toast;
 import com.emn.trustydrive.adapters.FileAdapter;
 import com.emn.trustydrive.fragments.AddDialogFragment;
 import com.emn.trustydrive.fragments.FileOptionsDialogFragment;
+import com.emn.trustydrive.metadata.Account;
+import com.emn.trustydrive.metadata.ChunkData;
 import com.emn.trustydrive.metadata.FileData;
+import com.emn.trustydrive.metadata.TrustyDrive;
+import com.emn.trustydrive.tasks.UploadTask;
 
 import java.io.InputStream;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class FileListActivity extends AppCompatActivity {
-    public List<FileData> filesData = new ArrayList<>();
     private FileAdapter fileAdapter;
+    private List<Account> accounts;
+    private TrustyDrive metadata;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_list);
-        for (int i = 1; i <= 15; i++)
-            filesData.add(new FileData("File " + i, new Date(117, 0, i), "", 10));
-        fileAdapter = new FileAdapter(FileListActivity.this, filesData);
+    }
+
+    protected void onResume() {
+        super.onResume();
+        accounts = getIntent().getExtras().getParcelableArrayList("accounts");
+        metadata = getIntent().getExtras().getParcelable("metadata");
+        fileAdapter = new FileAdapter(FileListActivity.this, metadata.getFilesData());
         ((ListView) findViewById(R.id.listView)).setAdapter(fileAdapter);
     }
 
@@ -43,7 +57,25 @@ public class FileListActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK)
             try {
                 InputStream inputStream = getContentResolver().openInputStream(data.getData());
-                Toast.makeText(this, "TODO: Upload file", Toast.LENGTH_LONG).show(); //TODO
+                Cursor returnCursor = getContentResolver().query(data.getData(), null, null, null, null);
+                int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                returnCursor.moveToFirst();
+                List<ChunkData> chunksData = new ArrayList<>(accounts.size());
+                for (Account account : accounts)
+                    chunksData.add(new ChunkData(account, this.generateRandomHash()));
+                metadata.getFilesData().add(new FileData(returnCursor.getString(nameIndex),
+                        new Date(), "", returnCursor.getInt(sizeIndex), chunksData));
+                fileAdapter.notifyDataSetChanged();
+                new UploadTask(inputStream, chunksData, metadata, new UploadTask.Callback() {
+                    public void onTaskComplete() {
+                        Toast.makeText(FileListActivity.this, "Upload succeed", Toast.LENGTH_SHORT).show();
+                    }
+
+                    public void onError(List<Exception> exceptions) {
+                        for (Exception exception : exceptions) exception.printStackTrace(); //TODO
+                    }
+                }).execute();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -73,7 +105,7 @@ public class FileListActivity extends AppCompatActivity {
     public void displayFileOptions(View view) {
         FileOptionsDialogFragment dialog = new FileOptionsDialogFragment();
         dialog.setFilePosition((int) view.getTag());
-        dialog.setFileData(filesData.get((int) view.getTag()));
+        dialog.setFileData(metadata.getFilesData().get((int) view.getTag()));
         dialog.show(getFragmentManager(), null);
     }
 
@@ -85,8 +117,7 @@ public class FileListActivity extends AppCompatActivity {
     }
 
     public void openFile(View view) {
-        FileData fileData = fileAdapter.getFilesData().get((int) view.getTag());
-        openFile(fileData);
+        openFile(fileAdapter.getFilesData().get((int) view.getTag()));
     }
 
     public void openFile(FileData fileData) {
@@ -95,5 +126,13 @@ public class FileListActivity extends AppCompatActivity {
 
     public void displayAddOptions(View view) {
         new AddDialogFragment().show(getFragmentManager(), null);
+    }
+
+    public String generateRandomHash() {
+        // TODO: Improve it
+        SecureRandom random = new SecureRandom();
+        String hash = new BigInteger(40, random).toString(16);
+        Log.e("hash", hash);
+        return hash;
     }
 }

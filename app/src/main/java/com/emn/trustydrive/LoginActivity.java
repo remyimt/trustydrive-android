@@ -16,7 +16,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.emn.trustydrive.metadata.Account;
-import com.emn.trustydrive.metadata.ChunkData;
 import com.emn.trustydrive.metadata.TrustyDrive;
 import com.emn.trustydrive.tasks.LoginTask;
 import com.google.gson.Gson;
@@ -32,7 +31,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-//        getSharedPreferences("trustyDrive", MODE_PRIVATE).edit().remove("accounts").remove("firstConnection").apply(); // Use to reset the app
+//        getSharedPreferences("trustyDrive", MODE_PRIVATE).edit().remove("accounts").apply();
     }
 
     protected void onResume() {
@@ -80,15 +79,13 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void login() {
-        String password = ((EditText) findViewById(R.id.passwordEditText)).getText().toString();
-        List<ChunkData> downloadObjects = new ArrayList<>();
-        for (Account account : accounts)
-            downloadObjects.add(new ChunkData(account, account.createHash(password)));
-        new LoginTask(downloadObjects, this, new LoginTask.Callback() {
+        final String password = ((EditText) findViewById(R.id.passwordEditText)).getText().toString();
+        new LoginTask(accounts, password, this, new LoginTask.Callback() {
             public void onTaskComplete(TrustyDrive metadata) {
-                Intent intent = new Intent(LoginActivity.this, FileListActivity.class);
-                intent.putExtra("metadata", metadata);
-                startActivity(intent);
+                for (Account account : accounts)
+                    account.setMetadataFileName(account.createHash(password));
+                startActivity(new Intent(LoginActivity.this, FileListActivity.class)
+                        .putExtra("metadata", metadata).putParcelableArrayListExtra("accounts", accounts));
                 finish();
             }
             public void onError(List<Exception> exceptions) {

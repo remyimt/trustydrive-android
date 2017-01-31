@@ -3,9 +3,7 @@ package com.emn.trustydrive.metadata;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -16,12 +14,14 @@ public class FileData implements Parcelable {
     private int size;
     private List<ChunkData> chunksData;
 
-    public FileData(String name, Date uploadDate, String path, int size) {
+    private final transient SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");;
+
+    public FileData(String name, Date uploadDate, String path, int size, List<ChunkData> chunksData) {
         this.name = name;
         this.uploadDate = uploadDate;
-        this.size = size;
         this.path = path;
-        chunksData = new ArrayList<>();
+        this.size = size;
+        this.chunksData = chunksData;
     }
 
     public String getName() {
@@ -31,8 +31,6 @@ public class FileData implements Parcelable {
     public void setName(String name) {
         this.name = name;
     }
-
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
     public Date getUploadDate() {
         return uploadDate;
@@ -82,7 +80,7 @@ public class FileData implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(name);
-        dest.writeString(dateFormat.format(uploadDate));
+        dest.writeLong(uploadDate.getTime());
         dest.writeString(path);
         dest.writeInt(size);
         dest.writeTypedList(chunksData);
@@ -90,12 +88,7 @@ public class FileData implements Parcelable {
 
     protected FileData(Parcel in) {
         name = in.readString();
-        try {
-            uploadDate = dateFormat.parse(in.readString());
-        } catch (ParseException e) {
-            uploadDate = null;
-            e.printStackTrace();
-        }
+        uploadDate = new Date(in.readLong());
         path = in.readString();
         size = in.readInt();
         chunksData = in.createTypedArrayList(ChunkData.CREATOR);
