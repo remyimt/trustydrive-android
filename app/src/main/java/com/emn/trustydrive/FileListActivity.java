@@ -1,7 +1,9 @@
 package com.emn.trustydrive;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.support.v7.app.AppCompatActivity;
@@ -19,6 +21,7 @@ import com.emn.trustydrive.metadata.Account;
 import com.emn.trustydrive.metadata.ChunkData;
 import com.emn.trustydrive.metadata.FileData;
 import com.emn.trustydrive.metadata.TrustyDrive;
+import com.emn.trustydrive.tasks.DownloadTask;
 import com.emn.trustydrive.tasks.UploadTask;
 
 import java.io.InputStream;
@@ -32,17 +35,15 @@ public class FileListActivity extends AppCompatActivity {
     private FileAdapter fileAdapter;
     private List<Account> accounts;
     private TrustyDrive metadata;
+    private ProgressDialog progress;
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_list);
-    }
-
-    protected void onResume() {
-        super.onResume();
         accounts = getIntent().getExtras().getParcelableArrayList("accounts");
         metadata = getIntent().getExtras().getParcelable("metadata");
-        fileAdapter = new FileAdapter(FileListActivity.this, metadata.getFilesData());
+        fileAdapter = new FileAdapter(FileListActivity.this, metadata);
         ((ListView) findViewById(R.id.listView)).setAdapter(fileAdapter);
     }
 
@@ -64,7 +65,7 @@ public class FileListActivity extends AppCompatActivity {
                 List<ChunkData> chunksData = new ArrayList<>(accounts.size());
                 for (Account account : accounts)
                     chunksData.add(new ChunkData(account, this.generateRandomHash()));
-                metadata.getFilesData().add(new FileData(returnCursor.getString(nameIndex),
+                fileAdapter.add(new FileData(returnCursor.getString(nameIndex),
                         new Date(), "", returnCursor.getInt(sizeIndex), chunksData));
                 fileAdapter.notifyDataSetChanged();
                 new UploadTask(inputStream, chunksData, metadata, new UploadTask.Callback() {
@@ -121,7 +122,25 @@ public class FileListActivity extends AppCompatActivity {
     }
 
     public void openFile(FileData fileData) {
-        Toast.makeText(FileListActivity.this, "TODO: Open file", Toast.LENGTH_SHORT).show(); //TODO
+        this.showLoading();
+        new DownloadTask(fileData.getChunksData(), new DownloadTask.Callback() {
+            public void onTaskComplete(Uri uri) {
+                progress.dismiss();
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(uri);
+                intent.setType("*/*"); //TODO
+                if (intent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(Intent.createChooser(intent, "Open with :"));
+                } else Toast.makeText(FileListActivity.this, "Not app found to open this file",
+                        Toast.LENGTH_SHORT).show();
+            }
+
+            public void onError(List<Exception> exceptions) {
+                Toast.makeText(FileListActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                for (Exception exception : exceptions) exception.printStackTrace(); //TODO
+                progress.dismiss();
+            }
+        }).execute();
     }
 
     public void displayAddOptions(View view) {
@@ -134,5 +153,13 @@ public class FileListActivity extends AppCompatActivity {
         String hash = new BigInteger(40, random).toString(16);
         Log.e("hash", hash);
         return hash;
+    }
+
+    public void showLoading() {
+        progress = new ProgressDialog(this);
+        progress.setTitle("Loading");
+        progress.setMessage("Please wait...");
+        progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
+        progress.show();
     }
 }

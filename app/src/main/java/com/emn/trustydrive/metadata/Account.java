@@ -31,6 +31,10 @@ public class Account implements Parcelable {
         return email;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getMetadataFileName() {
         return metadataFileName;
     }

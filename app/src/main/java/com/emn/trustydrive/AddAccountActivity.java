@@ -1,14 +1,20 @@
 package com.emn.trustydrive;
 
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
 import com.dropbox.core.android.Auth;
+import com.emn.trustydrive.metadata.Account;
 import com.emn.trustydrive.metadata.Provider;
 import com.emn.trustydrive.tasks.GetEmailTask;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.util.ArrayList;
 
 public class AddAccountActivity extends AppCompatActivity {
     private boolean authDropboxLaunched;
@@ -25,13 +31,22 @@ public class AddAccountActivity extends AppCompatActivity {
         if (authDropboxLaunched) {
             String token = Auth.getOAuth2Token();
             if (token != null) {
-                new GetEmailTask(token, Provider.DROPBOX, this, new GetEmailTask.Callback() {
-                    public void onTaskComplete() {
+                Account account = new Account(token, "", Provider.DROPBOX);
+                this.showLoading();
+                new GetEmailTask(account, new GetEmailTask.Callback() {
+                    public void onTaskComplete(Account account) {
+                        SharedPreferences prefs = getSharedPreferences("trustyDrive", MODE_PRIVATE);
+                        ArrayList<Account> accounts = new Gson().fromJson(prefs.getString("accounts", "[]"),
+                                new TypeToken<ArrayList<Account>>() {}.getType());
+                        accounts.add(account);
+                        prefs.edit().putString("accounts", new Gson().toJson(accounts)).apply();
+                        progress.dismiss();
                         finish();
                     }
 
                     public void onError(Exception e) {
-                        e.printStackTrace(); //ToDo: Display error message
+                        e.printStackTrace(); //TODO
+                        progress.dismiss();
                     }
                 }).execute();
             } else
@@ -45,10 +60,6 @@ public class AddAccountActivity extends AppCompatActivity {
         progress.setMessage("Please wait...");
         progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
         progress.show();
-    }
-
-    public void dismissLoading() {
-        progress.dismiss();
     }
 
     public void addDropboxAccount(View v) {

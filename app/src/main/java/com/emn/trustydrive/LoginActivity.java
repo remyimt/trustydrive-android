@@ -80,17 +80,22 @@ public class LoginActivity extends AppCompatActivity {
 
     public void login() {
         final String password = ((EditText) findViewById(R.id.passwordEditText)).getText().toString();
-        new LoginTask(accounts, password, this, new LoginTask.Callback() {
+        this.showLoading();
+        new LoginTask(accounts, password, new LoginTask.Callback() {
             public void onTaskComplete(TrustyDrive metadata) {
                 for (Account account : accounts)
                     account.setMetadataFileName(account.createHash(password));
                 startActivity(new Intent(LoginActivity.this, FileListActivity.class)
-                        .putExtra("metadata", metadata).putParcelableArrayListExtra("accounts", accounts));
+                        .putExtra("metadata", metadata)
+                        .putParcelableArrayListExtra("accounts", accounts));
+                progress.dismiss();
                 finish();
             }
+
             public void onError(List<Exception> exceptions) {
                 Toast.makeText(LoginActivity.this, "Error or wrong password", Toast.LENGTH_SHORT).show();
                 for (Exception exception : exceptions) exception.printStackTrace(); //TODO
+                progress.dismiss();
             }
         }).execute();
     }
@@ -105,9 +110,5 @@ public class LoginActivity extends AppCompatActivity {
         progress.setMessage("Please wait...");
         progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
         progress.show();
-    }
-
-    public void dismissLoading() {
-        progress.dismiss();
     }
 }

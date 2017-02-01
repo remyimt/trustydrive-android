@@ -5,7 +5,6 @@ import android.os.Environment;
 
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
-import com.emn.trustydrive.LoginActivity;
 import com.emn.trustydrive.metadata.Account;
 import com.emn.trustydrive.metadata.TrustyDrive;
 import com.google.gson.Gson;
@@ -22,7 +21,6 @@ import java.util.List;
 public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
     private List<Account> accounts;
     private String password;
-    private LoginActivity callingActivity;
     private Callback callback;
     private List<Exception> exceptions;
 
@@ -32,13 +30,11 @@ public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
         void onError(List<Exception> e);
     }
 
-    public LoginTask(List<Account> accounts, String password, LoginActivity callingActivity, Callback callback) {
+    public LoginTask(List<Account> accounts, String password, Callback callback) {
         this.accounts = accounts;
         this.password = password;
-        this.callingActivity = callingActivity;
         this.callback = callback;
         this.exceptions = new ArrayList<>();
-        callingActivity.showLoading();
     }
 
     protected TrustyDrive doInBackground(Object... objects) {
@@ -80,6 +76,5 @@ public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
         if (exceptions.size() > 0 || metadata == null)
             callback.onError(exceptions);
         else callback.onTaskComplete(metadata);
-        callingActivity.dismissLoading();
     }
 }

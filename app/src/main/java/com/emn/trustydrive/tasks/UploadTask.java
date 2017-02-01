@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
+import com.dropbox.core.v2.files.WriteMode;
 import com.emn.trustydrive.metadata.ChunkData;
 import com.emn.trustydrive.metadata.TrustyDrive;
 import com.google.gson.Gson;
@@ -63,11 +64,13 @@ public class UploadTask extends AsyncTask<Object, Void, Void> {
             for (int i = 0; i < size; i++)
                 chunksOut[i] = new FileOutputStream(new File(Environment.getExternalStorageDirectory(),
                         chunksData.get(i).getName()));
-            int byt;
-            int i = 0;
-            while (-1 != (byt = inputStream.read())) {
-                chunksOut[i % size].write(byt);
-                i++;
+            byte[] buffer = new byte[1024 * 1024];
+            int read;
+            while (-1 != (read = inputStream.read(buffer))) {
+                byte[][] outBuffers = new byte[size][];
+                for (int i = 0; i < size; i++) outBuffers[i] = new byte[read/size + (read%size - i > 0 ? 1 : 0)];
+                for (int i = 0; i < read; i++) outBuffers[i % size][i / size] = buffer[i];
+                for (int i = 0; i < size; i++) chunksOut[i].write(outBuffers[i]);
             }
             for (FileOutputStream chunk : chunksOut) chunk.close();
             for (int j = 0; j < size; j++)
@@ -83,7 +86,8 @@ public class UploadTask extends AsyncTask<Object, Void, Void> {
                     case DROPBOX:
                         new DbxClientV2(DbxRequestConfig.newBuilder("trustyDrive").build(),
                                 chunkData.getAccount().getToken()).files().uploadBuilder("/"
-                                + chunkData.getName()).uploadAndFinish(chunks[i]);
+                                + chunkData.getName()).withMode(WriteMode.OVERWRITE)
+                                .uploadAndFinish(chunks[i]);
                         break;
                 }
             } catch (Exception e) {
