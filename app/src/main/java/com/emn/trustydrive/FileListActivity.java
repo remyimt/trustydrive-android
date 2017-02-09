@@ -57,7 +57,9 @@ public class FileListActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK)
             try {
+                Log.e("data", data.getData().toString());
                 InputStream inputStream = getContentResolver().openInputStream(data.getData());
+                String type = getContentResolver().getType(data.getData()); //TODO: Use it
                 Cursor returnCursor = getContentResolver().query(data.getData(), null, null, null, null);
                 int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
                 int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
@@ -65,10 +67,10 @@ public class FileListActivity extends AppCompatActivity {
                 List<ChunkData> chunksData = new ArrayList<>(accounts.size());
                 for (Account account : accounts)
                     chunksData.add(new ChunkData(account, this.generateRandomHash()));
-                fileAdapter.add(new FileData(returnCursor.getString(nameIndex),
-                        new Date(), "", returnCursor.getInt(sizeIndex), chunksData));
+                fileAdapter.add(new FileData(returnCursor.getString(nameIndex), new Date().getTime(),
+                        null, "", returnCursor.getInt(sizeIndex), chunksData, null)); //TODO: Set type
                 fileAdapter.notifyDataSetChanged();
-                new UploadTask(inputStream, chunksData, metadata, new UploadTask.Callback() {
+                new UploadTask(inputStream, chunksData, metadata, this, new UploadTask.Callback() {
                     public void onTaskComplete() {
                         Toast.makeText(FileListActivity.this, "Upload succeed", Toast.LENGTH_SHORT).show();
                     }
@@ -78,7 +80,7 @@ public class FileListActivity extends AppCompatActivity {
                     }
                 }).execute();
             } catch (Exception e) {
-                e.printStackTrace();
+                e.printStackTrace(); //TODO
             }
     }
 
@@ -106,7 +108,7 @@ public class FileListActivity extends AppCompatActivity {
     public void displayFileOptions(View view) {
         FileOptionsDialogFragment dialog = new FileOptionsDialogFragment();
         dialog.setFilePosition((int) view.getTag());
-        dialog.setFileData(metadata.getFilesData().get((int) view.getTag()));
+        dialog.setFileData(metadata.getFiles().get((int) view.getTag()));
         dialog.show(getFragmentManager(), null);
     }
 
@@ -123,14 +125,13 @@ public class FileListActivity extends AppCompatActivity {
 
     public void openFile(FileData fileData) {
         this.showLoading();
-        new DownloadTask(fileData.getChunksData(), new DownloadTask.Callback() {
+        new DownloadTask(fileData.getChunks(), this, new DownloadTask.Callback() {
             public void onTaskComplete(Uri uri) {
                 progress.dismiss();
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(uri);
-                intent.setType("*/*"); //TODO
+                Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(uri, "*/*"); //TODO
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 if (intent.resolveActivity(getPackageManager()) != null) {
-                    startActivity(Intent.createChooser(intent, "Open with :"));
+                    startActivity(intent);
                 } else Toast.makeText(FileListActivity.this, "Not app found to open this file",
                         Toast.LENGTH_SHORT).show();
             }
@@ -150,9 +151,7 @@ public class FileListActivity extends AppCompatActivity {
     public String generateRandomHash() {
         // TODO: Improve it
         SecureRandom random = new SecureRandom();
-        String hash = new BigInteger(40, random).toString(16);
-        Log.e("hash", hash);
-        return hash;
+        return new BigInteger(40, random).toString(16);
     }
 
     public void showLoading() {

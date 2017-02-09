@@ -9,19 +9,23 @@ import java.util.List;
 
 public class FileData implements Parcelable {
     private String name;
-    private Date uploadDate;
-    private String path;
+    private Long uploadDate;
+    private Type type;
+    private String absolutePath;
     private int size;
-    private List<ChunkData> chunksData;
+    private List<ChunkData> chunks;
+    private List<FileData> files;
 
-    private final transient SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");;
+    private final transient SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
-    public FileData(String name, Date uploadDate, String path, int size, List<ChunkData> chunksData) {
+    public FileData(String name, Long uploadDate, Type type, String absolutePath, int size, List<ChunkData> chunks, List<FileData> files) {
         this.name = name;
         this.uploadDate = uploadDate;
-        this.path = path;
+        this.type = type;
+        this.absolutePath = absolutePath;
         this.size = size;
-        this.chunksData = chunksData;
+        this.chunks = chunks;
+        this.files = files;
     }
 
     public String getName() {
@@ -32,24 +36,32 @@ public class FileData implements Parcelable {
         this.name = name;
     }
 
-    public Date getUploadDate() {
+    public Long getUploadDate() {
         return uploadDate;
     }
 
-    public void setUploadDate(Date uploadDate) {
+    public void setUploadDate(Long uploadDate) {
         this.uploadDate = uploadDate;
     }
 
     public String displayDate() {
-        return dateFormat.format(getUploadDate());
+        return dateFormat.format(new Date(getUploadDate()));
     }
 
-    public String getPath() {
-        return path;
+    public Type getType() {
+        return type;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    public String getAbsolutePath() {
+        return absolutePath;
+    }
+
+    public void setAbsolutePath(String absolutePath) {
+        this.absolutePath = absolutePath;
     }
 
     public int getSize() {
@@ -64,12 +76,20 @@ public class FileData implements Parcelable {
         return String.valueOf(getSize()) + " bytes";
     }
 
-    public List<ChunkData> getChunksData() {
-        return chunksData;
+    public List<ChunkData> getChunks() {
+        return chunks;
     }
 
-    public void setChunksData(List<ChunkData> chunksData) {
-        this.chunksData = chunksData;
+    public void setChunks(List<ChunkData> chunksData) {
+        this.chunks = chunksData;
+    }
+
+    public List<FileData> getFiles() {
+        return files;
+    }
+
+    public void setFiles(List<FileData> files) {
+        this.files = files;
     }
 
     @Override
@@ -80,18 +100,22 @@ public class FileData implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(name);
-        dest.writeLong(uploadDate.getTime());
-        dest.writeString(path);
+        dest.writeLong(uploadDate);
+        dest.writeString(type.name());
+        dest.writeString(absolutePath);
         dest.writeInt(size);
-        dest.writeTypedList(chunksData);
+        dest.writeTypedList(chunks);
+        dest.writeTypedList(files);
     }
 
     protected FileData(Parcel in) {
         name = in.readString();
-        uploadDate = new Date(in.readLong());
-        path = in.readString();
+        uploadDate = in.readLong();
+        type = Type.valueOf(in.readString());
+        absolutePath = in.readString();
         size = in.readInt();
-        chunksData = in.createTypedArrayList(ChunkData.CREATOR);
+        chunks = in.createTypedArrayList(ChunkData.CREATOR);
+        files = in.createTypedArrayList(FileData.CREATOR);
     }
 
     public static final Creator<FileData> CREATOR = new Creator<FileData>() {

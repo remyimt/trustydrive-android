@@ -2,10 +2,7 @@ package com.emn.trustydrive;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -66,22 +63,10 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    public void checkPermission(View v) {
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
-        else login();
-    }
-
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
-        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) login();
-        else Toast.makeText(LoginActivity.this, "The app can't be used without this permission", Toast.LENGTH_LONG).show();
-    }
-
-    public void login() {
+    public void login(View v) {
         final String password = ((EditText) findViewById(R.id.passwordEditText)).getText().toString();
         this.showLoading();
-        new LoginTask(accounts, password, new LoginTask.Callback() {
+        new LoginTask(accounts, password, this, new LoginTask.Callback() {
             public void onTaskComplete(TrustyDrive metadata) {
                 for (Account account : accounts)
                     account.setMetadataFileName(account.createHash(password));

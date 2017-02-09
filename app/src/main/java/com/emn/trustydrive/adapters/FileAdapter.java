@@ -26,25 +26,25 @@ public class FileAdapter extends BaseAdapter {
     }
 
     public List<FileData> getFilesData() {
-        return metadata.getFilesData();
+        return metadata.getFiles();
     }
 
     public void deleteFile(int position) {
-        metadata.getFilesData().remove(position);
+        metadata.getFiles().remove(position);
     }
 
     public void add(FileData fileData) {
-        metadata.getFilesData().add(fileData);
+        metadata.getFiles().add(fileData);
     }
 
     @Override
     public int getCount() {
-        return metadata.getFilesData().size();
+        return metadata.getFiles().size();
     }
 
     @Override
     public FileData getItem(int position) {
-        return metadata.getFilesData().get(position);
+        return metadata.getFiles().get(position);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class FileAdapter extends BaseAdapter {
             ImageView storedStatusImage = (ImageView) convertView.findViewById(R.id.storedStatusImage);
             convertView.setTag(new FileViewHolder(nameTextView, sizeAndDateTextView, documentInfo, fileOptionsButton, imageIcon, storedStatusImage));
         }
-        FileData fileData = metadata.getFilesData().get(position);
+        FileData fileData = metadata.getFiles().get(position);
         fileViewHolder = (FileViewHolder) convertView.getTag();
         fileViewHolder.nameTextView.setText(fileData.getName());
         fileViewHolder.sizeAndDateTextView.setText(fileData.displaySize() + ", " + fileData.displayDate());

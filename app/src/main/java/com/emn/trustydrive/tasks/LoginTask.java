@@ -1,7 +1,8 @@
 package com.emn.trustydrive.tasks;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Environment;
 
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
@@ -9,18 +10,17 @@ import com.emn.trustydrive.metadata.Account;
 import com.emn.trustydrive.metadata.TrustyDrive;
 import com.google.gson.Gson;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
     private List<Account> accounts;
     private String password;
+    private Activity activity;
     private Callback callback;
     private List<Exception> exceptions;
 
@@ -30,9 +30,10 @@ public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
         void onError(List<Exception> e);
     }
 
-    public LoginTask(List<Account> accounts, String password, Callback callback) {
+    public LoginTask(List<Account> accounts, String password, Activity activity, Callback callback) {
         this.accounts = accounts;
         this.password = password;
+        this.activity = activity;
         this.callback = callback;
         this.exceptions = new ArrayList<>();
     }
@@ -53,22 +54,26 @@ public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
                 exceptions.add(e);
             }
         }
-        try {
-            if (files.size() > 0) {
-                FileOutputStream fOut = new FileOutputStream(new File(Environment.getExternalStorageDirectory(), "fOut"));
-                int byt;
-                int i = 0;
-                while (-1 != (byt = files.get(i%files.size()).read())) {
-                    fOut.write(byt);
-                    i++;
+        if (files.size() > 0) {
+            try {
+                int size = files.size();
+                FileOutputStream fOut = activity.openFileOutput("fOut", Context.MODE_PRIVATE);
+                int[] read = new int[size];
+                byte[][] buffers = new byte[size][16 * 1024]; // Can't use more
+                while (-1 != (read[0] = files.get(0).read(buffers[0]))) {
+                    for (int i = 1; i < size; i++) read[i] = files.get(i).read(buffers[i]);
+                    int totalRead = 0;
+                    for (int i = 0; i < size; i++) totalRead += read[i];
+                    byte[] buffer = new byte[totalRead];
+                    for (int i = 0; i < totalRead; i++) buffer[i] = buffers[i % size][i / size];
+                    fOut.write(buffer);
                 }
                 fOut.close();
-                return new Gson().fromJson(FileUtils.readFileToString(new File(Environment.getExternalStorageDirectory(),
-                        "fOut"), StandardCharsets.UTF_8), TrustyDrive.class);
-            } else if (files.size() == 0 && exceptions.size() == 0) return new TrustyDrive();
-        } catch (Exception e) {
-            exceptions.add(e);
-        }
+                return new Gson().fromJson(IOUtils.toString(activity.openFileInput("fOut"),"UTF-8"), TrustyDrive.class);
+            } catch (Exception e) {
+                exceptions.add(e);
+            }
+        } else if (files.size() == 0 && exceptions.size() == 0) return new TrustyDrive();
         return null;
     }
 

@@ -6,18 +6,18 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 
 public class TrustyDrive implements Parcelable {
-    private ArrayList<FileData> filesData;
+    private ArrayList<FileData> files;
 
     public TrustyDrive() {
-        filesData = new ArrayList<>();
+        files = new ArrayList<>();
     }
 
-    public ArrayList<FileData> getFilesData() {
-        return filesData;
+    public ArrayList<FileData> getFiles() {
+        return files;
     }
 
     protected TrustyDrive(Parcel in) {
-        filesData = in.createTypedArrayList(FileData.CREATOR);
+        files = in.createTypedArrayList(FileData.CREATOR);
     }
 
     public static final Creator<TrustyDrive> CREATOR = new Creator<TrustyDrive>() {
@@ -39,6 +39,6 @@ public class TrustyDrive implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeTypedList(filesData);
+        dest.writeTypedList(files);
     }
 }
