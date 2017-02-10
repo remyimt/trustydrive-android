@@ -50,7 +50,7 @@ public class AccountAdapter extends BaseAdapter {
             case GOOGLE_DRIVE:
                 providerLogoImageView.setImageResource(R.drawable.google_drive);
                 break;
-            case ONE_DRIVE:
+            case ONEDRIVE:
                 providerLogoImageView.setImageResource(R.drawable.onedrive);
                 break;
             default:

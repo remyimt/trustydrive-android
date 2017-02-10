@@ -1,3 +1,10 @@
 package com.emn.trustydrive.metadata;
 
-public enum Type {IMAGE,PDF,TEXT,FOLDER} //TODO: Improve according to iOS
+import com.google.gson.annotations.SerializedName;
+
+public enum Type {
+    @SerializedName("file")
+    FILE,
+    @SerializedName("directory")
+    DIRECTORY;
+}

@@ -21,6 +21,7 @@ import com.emn.trustydrive.metadata.Account;
 import com.emn.trustydrive.metadata.ChunkData;
 import com.emn.trustydrive.metadata.FileData;
 import com.emn.trustydrive.metadata.TrustyDrive;
+import com.emn.trustydrive.metadata.Type;
 import com.emn.trustydrive.tasks.DownloadTask;
 import com.emn.trustydrive.tasks.UploadTask;
 
@@ -59,7 +60,6 @@ public class FileListActivity extends AppCompatActivity {
             try {
                 Log.e("data", data.getData().toString());
                 InputStream inputStream = getContentResolver().openInputStream(data.getData());
-                String type = getContentResolver().getType(data.getData()); //TODO: Use it
                 Cursor returnCursor = getContentResolver().query(data.getData(), null, null, null, null);
                 int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
                 int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
@@ -68,7 +68,7 @@ public class FileListActivity extends AppCompatActivity {
                 for (Account account : accounts)
                     chunksData.add(new ChunkData(account, this.generateRandomHash()));
                 fileAdapter.add(new FileData(returnCursor.getString(nameIndex), new Date().getTime(),
-                        null, "", returnCursor.getInt(sizeIndex), chunksData, null)); //TODO: Set type
+                        Type.FILE, "", returnCursor.getInt(sizeIndex), chunksData, null));
                 fileAdapter.notifyDataSetChanged();
                 new UploadTask(inputStream, chunksData, metadata, this, new UploadTask.Callback() {
                     public void onTaskComplete() {
