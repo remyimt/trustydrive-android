@@ -25,7 +25,7 @@ public class SettingsActivity extends AppCompatActivity {
         super.onResume();
         List<Account> accounts = new Gson().fromJson(getSharedPreferences("trustyDrive", MODE_PRIVATE)
                 .getString("accounts", "[]"), new TypeToken<ArrayList<Account>>() {}.getType());
-        ((ListView) findViewById(R.id.registeredAccountsListView)).setAdapter(new AccountAdapter(this, accounts));
+        ((ListView) findViewById(R.id.registeredAccountsListView)).setAdapter(new AccountAdapter(this, accounts, false));
     }
 
     public void logout(View view) {

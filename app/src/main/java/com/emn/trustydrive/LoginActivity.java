@@ -5,13 +5,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.emn.trustydrive.adapters.AccountAdapter;
 import com.emn.trustydrive.metadata.Account;
 import com.emn.trustydrive.metadata.TrustyDrive;
 import com.emn.trustydrive.tasks.LoginTask;
@@ -37,8 +37,9 @@ public class LoginActivity extends AppCompatActivity {
                 .getString("accounts", "[]"), new TypeToken<ArrayList<Account>>() {}.getType());
         ArrayList<String> emails = new ArrayList<>();
         for (Account account : accounts) emails.add(account.getEmail());
-        ((ListView) findViewById(R.id.accountsListView)).setAdapter(
-                new ArrayAdapter(LoginActivity.this, android.R.layout.simple_list_item_1, emails));
+//        ((ListView) findViewById(R.id.accountsListView)).setAdapter(
+//                new ArrayAdapter(LoginActivity.this, android.R.layout.simple_list_item_1, emails));
+        ((ListView) findViewById(R.id.accountsListView)).setAdapter(new AccountAdapter(this, accounts, true));
         checkAtLeastOneAccount();
         warnIfNotEnoughAccounts();
     }
