@@ -97,4 +97,8 @@ public class LoginActivity extends AppCompatActivity {
         progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
         progress.show();
     }
+
+    public void launchRegisterActivity(View view) {
+        startActivity(new Intent(this, RegisterActivity.class));
+    }
 }
