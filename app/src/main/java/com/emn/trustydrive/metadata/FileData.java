@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -14,11 +15,11 @@ public class FileData implements Parcelable {
     private String absolutePath;
     private int size;
     private List<ChunkData> chunks;
-    private List<FileData> files;
+    private ArrayList<FileData> files;
 
     private final transient SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
-    public FileData(String name, Long uploadDate, Type type, String absolutePath, int size, List<ChunkData> chunks, List<FileData> files) {
+    public FileData(String name, Long uploadDate, Type type, String absolutePath, int size, List<ChunkData> chunks, ArrayList<FileData> files) {
         this.name = name;
         this.uploadDate = uploadDate;
         this.type = type;
@@ -84,11 +85,11 @@ public class FileData implements Parcelable {
         this.chunks = chunksData;
     }
 
-    public List<FileData> getFiles() {
+    public ArrayList<FileData> getFiles() {
         return files;
     }
 
-    public void setFiles(List<FileData> files) {
+    public void setFiles(ArrayList<FileData> files) {
         this.files = files;
     }
 

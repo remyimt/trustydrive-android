@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,6 +21,7 @@ import com.emn.trustydrive.metadata.ChunkData;
 import com.emn.trustydrive.metadata.FileData;
 import com.emn.trustydrive.metadata.TrustyDrive;
 import com.emn.trustydrive.metadata.Type;
+import com.emn.trustydrive.tasks.DeleteTask;
 import com.emn.trustydrive.tasks.DownloadTask;
 import com.emn.trustydrive.tasks.UploadTask;
 
@@ -34,7 +34,8 @@ import java.util.List;
 
 public class FileListActivity extends AppCompatActivity {
     private FileAdapter fileAdapter;
-    private List<Account> accounts;
+    private ArrayList<Account> accounts;
+    private ArrayList<FileData> files;
     private TrustyDrive metadata;
     private ProgressDialog progress;
 
@@ -44,7 +45,8 @@ public class FileListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_file_list);
         accounts = getIntent().getExtras().getParcelableArrayList("accounts");
         metadata = getIntent().getExtras().getParcelable("metadata");
-        fileAdapter = new FileAdapter(FileListActivity.this, metadata);
+        files = getIntent().getExtras().getParcelableArrayList("files");
+        fileAdapter = new FileAdapter(FileListActivity.this, files);
         ((ListView) findViewById(R.id.listView)).setAdapter(fileAdapter);
     }
 
@@ -58,7 +60,6 @@ public class FileListActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK)
             try {
-                Log.e("data", data.getData().toString());
                 InputStream inputStream = getContentResolver().openInputStream(data.getData());
                 Cursor returnCursor = getContentResolver().query(data.getData(), null, null, null, null);
                 int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
@@ -67,15 +68,21 @@ public class FileListActivity extends AppCompatActivity {
                 List<ChunkData> chunksData = new ArrayList<>(accounts.size());
                 for (Account account : accounts)
                     chunksData.add(new ChunkData(account, this.generateRandomHash()));
-                fileAdapter.add(new FileData(returnCursor.getString(nameIndex), new Date().getTime(),
-                        Type.FILE, "", returnCursor.getInt(sizeIndex), chunksData, null));
-                fileAdapter.notifyDataSetChanged();
-                new UploadTask(inputStream, chunksData, metadata, this, new UploadTask.Callback() {
+                final FileData fileData = new FileData(returnCursor.getString(nameIndex), new Date().getTime(),
+                        Type.FILE, "", returnCursor.getInt(sizeIndex), chunksData, null);
+                metadata.getFiles().add(fileData);
+                this.showLoading();
+                new UploadTask(inputStream, chunksData, metadata, accounts, this, new UploadTask.Callback() {
                     public void onTaskComplete() {
+                        progress.dismiss();
+                        fileAdapter.add(fileData);
+                        fileAdapter.notifyDataSetChanged();
                         Toast.makeText(FileListActivity.this, "Upload succeed", Toast.LENGTH_SHORT).show();
                     }
 
                     public void onError(List<Exception> exceptions) {
+                        progress.dismiss();
+                        Toast.makeText(FileListActivity.this, "Error", Toast.LENGTH_SHORT).show();
                         for (Exception exception : exceptions) exception.printStackTrace(); //TODO
                     }
                 }).execute();
@@ -85,24 +92,34 @@ public class FileListActivity extends AppCompatActivity {
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_settings, menu);
         return true;
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         if (item.getItemId() == R.id.action_settings)
             startActivity(new Intent(this, SettingsActivity.class));
         return super.onOptionsItemSelected(item);
     }
 
-    public void deleteFile(int position) {
-        fileAdapter.deleteFile(position);
-        fileAdapter.notifyDataSetChanged();
-        Toast.makeText(FileListActivity.this, "File deleted", Toast.LENGTH_SHORT).show();
+    public void deleteFile(final int position) {
+        //TODO: Add confirmation window
+        metadata.getFiles().remove(position);
+        this.showLoading();
+        new DeleteTask(fileAdapter.getItem(position).getChunks(), metadata, accounts, this, new DeleteTask.Callback() {
+            public void onTaskComplete() {
+                progress.dismiss();
+                fileAdapter.deleteFile(position);
+                fileAdapter.notifyDataSetChanged();
+                Toast.makeText(FileListActivity.this, "File deleted", Toast.LENGTH_SHORT).show();
+            }
+
+            public void onError(List<Exception> exceptions) {
+                progress.dismiss();
+                Toast.makeText(FileListActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                for (Exception exception : exceptions) exception.printStackTrace(); //TODO
+            }
+        }).execute();
     }
 
     public void displayFileOptions(View view) {
@@ -120,7 +137,7 @@ public class FileListActivity extends AppCompatActivity {
     }
 
     public void openFile(View view) {
-        openFile(fileAdapter.getFilesData().get((int) view.getTag()));
+        openFile(fileAdapter.getItem((int) view.getTag()));
     }
 
     public void openFile(FileData fileData) {
@@ -142,6 +159,34 @@ public class FileListActivity extends AppCompatActivity {
                 progress.dismiss();
             }
         }).execute();
+    }
+
+    public void createDirectory() {
+        final FileData fileData = new FileData("new directory", new Date().getTime(),
+                Type.DIRECTORY, "", 0, null, new ArrayList<FileData>());
+        metadata.getFiles().add(fileData);
+        this.showLoading();
+        new UploadTask(null, null, metadata, accounts, this, new UploadTask.Callback() {
+            public void onTaskComplete() {
+                progress.dismiss();
+                fileAdapter.add(fileData);
+                fileAdapter.notifyDataSetChanged();
+                Toast.makeText(FileListActivity.this, "Folder created", Toast.LENGTH_SHORT).show();
+            }
+
+            public void onError(List<Exception> exceptions) {
+                progress.dismiss();
+                Toast.makeText(FileListActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                for (Exception exception : exceptions) exception.printStackTrace(); //TODO
+            }
+        }).execute();
+    }
+
+    public void openDirectory(View view) {
+        startActivity(new Intent(this, FileListActivity.class)
+                .putExtra("metadata", metadata)
+                .putParcelableArrayListExtra("accounts", accounts)
+                .putParcelableArrayListExtra("files", fileAdapter.getItem((int) view.getTag()).getFiles()));
     }
 
     public void displayAddOptions(View view) {

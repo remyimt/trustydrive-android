@@ -3,6 +3,7 @@ package com.emn.trustydrive.tasks;
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
@@ -39,6 +40,7 @@ public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
     }
 
     protected TrustyDrive doInBackground(Object... objects) {
+        Log.i(this.getClass().getSimpleName(), "Start login");
         List<InputStream> files = new ArrayList<>();
         for (Account account : accounts) {
             try {
@@ -55,6 +57,7 @@ public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
             }
         }
         if (files.size() > 0) {
+            Log.i(this.getClass().getSimpleName(), "Chunks found");
             try {
                 int size = files.size();
                 FileOutputStream fOut = activity.openFileOutput("fOut", Context.MODE_PRIVATE);
@@ -69,6 +72,7 @@ public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
                     fOut.write(buffer);
                 }
                 fOut.close();
+                Log.i(this.getClass().getSimpleName(), "File reconstitute");
                 return new Gson().fromJson(IOUtils.toString(activity.openFileInput("fOut"),"UTF-8"), TrustyDrive.class);
             } catch (Exception e) {
                 exceptions.add(e);
