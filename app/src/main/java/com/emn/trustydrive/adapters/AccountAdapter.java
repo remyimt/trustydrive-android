@@ -14,7 +14,7 @@ import com.emn.trustydrive.metadata.Account;
 import java.util.List;
 
 public class AccountAdapter extends BaseAdapter {
-    private final List<Account> accounts;
+    private List<Account> accounts;
     private final LayoutInflater inflater;
     private final boolean smallItems;
 
@@ -61,4 +61,9 @@ public class AccountAdapter extends BaseAdapter {
         }
         return convertView;
     }
+
+    public void setAccounts(List<Account> accounts) {
+        this.accounts = accounts;
+    }
+
 }

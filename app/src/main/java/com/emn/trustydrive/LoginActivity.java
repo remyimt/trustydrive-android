@@ -28,24 +28,32 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressDialog progress;
     private EditText passwordEditText;
     private Button loginButton;
+    private ListView accountsListView;
+    private TextView noAccountRegisteredTextView;
+    private AccountAdapter accountAdapter;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        accounts = new Gson().fromJson(getSharedPreferences("trustyDrive", MODE_PRIVATE)
-                .getString("accounts", "[]"), new TypeToken<ArrayList<Account>>() {}.getType());
+        accounts = updatedAccounts();
+        accountAdapter = new AccountAdapter(this, accounts, true);
+        accountsListView = ((ListView) findViewById(R.id.accountsListView));
+        accountsListView.setAdapter(accountAdapter);
+        noAccountRegisteredTextView = (TextView) findViewById(R.id.noAccountRegisteredTextView);
         loginButton = (Button) findViewById(R.id.loginButton);
-        loginButton.setClickable(false);
-        loginButton.setAlpha(.5f);
         passwordEditText = ((EditText) findViewById(R.id.passwordEditText));
         passwordEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (accounts.size() > 1 && !passwordEditText.getText().equals("")) {
-                    loginButton.setClickable(true);
-                    loginButton.setAlpha(1f);
+                if (accounts.size() > 1) {
+                    if (!passwordEditText.getText().toString().equals("")) {
+                        loginButton.setClickable(true);
+                        loginButton.setAlpha(1f);
+                    } else {
+                        disableLoginButton();
+                    }
                 }
             }
             @Override
@@ -56,20 +64,17 @@ public class LoginActivity extends AppCompatActivity {
 
     protected void onResume() {
         super.onResume();
+        disableLoginButton();
         passwordEditText.setText("");
-        loginButton.setAlpha(0.5f);
-        loginButton.setClickable(false);
-        accounts = new Gson().fromJson(getSharedPreferences("trustyDrive", MODE_PRIVATE)
-                .getString("accounts", "[]"), new TypeToken<ArrayList<Account>>() {}.getType());
-        ((ListView) findViewById(R.id.accountsListView)).setAdapter(new AccountAdapter(this, accounts, true));
-        TextView noAccountRegisteredTextView = (TextView) findViewById(R.id.noAccountRegisteredTextView);
+        accounts = updatedAccounts();
+        accountAdapter.setAccounts(accounts);
+        accountAdapter.notifyDataSetChanged();
         if (accounts.size() == 0) noAccountRegisteredTextView.setText(R.string.noAccountRegistered);
         else noAccountRegisteredTextView.setText(R.string.registeredAccounts);
         TextView warningTextView = (TextView) findViewById(R.id.warningTextView);
         if (accounts.size() < 2) {
             warningTextView.setText(R.string.notEnoughAccountsWarning);
-            loginButton.setClickable(false);
-            loginButton.setAlpha(.5f);
+            disableLoginButton();
         } else {
             warningTextView.setText("");
         }
@@ -108,6 +113,16 @@ public class LoginActivity extends AppCompatActivity {
         progress.setMessage("Please wait...");
         progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
         progress.show();
+    }
+
+    private ArrayList<Account> updatedAccounts() {
+        return new Gson().fromJson(getSharedPreferences("trustyDrive", MODE_PRIVATE)
+                .getString("accounts", "[]"), new TypeToken<ArrayList<Account>>() {}.getType());
+    }
+
+    private void disableLoginButton() {
+        loginButton.setClickable(false);
+        loginButton.setAlpha(.5f);
     }
 
     public void launchRegisterActivity(View view) {
