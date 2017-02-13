@@ -7,7 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-public class FileData implements Parcelable {
+public class FileData implements Parcelable, FileOrFolderData {
     private String name;
     private Long uploadDate;
     private Type type;
@@ -17,6 +17,7 @@ public class FileData implements Parcelable {
     private List<FileData> files;
 
     private final transient SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+    private FolderData parentFolder;
 
     public FileData(String name, Long uploadDate, Type type, String absolutePath, int size, List<ChunkData> chunks, List<FileData> files) {
         this.name = name;
@@ -129,4 +130,8 @@ public class FileData implements Parcelable {
             return new FileData[size];
         }
     };
+
+    public void setParentFolder(FolderData parentFolder) {
+        this.parentFolder = parentFolder;
+    }
 }

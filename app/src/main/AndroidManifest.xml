@@ -57,8 +57,8 @@
 
         <activity
             android:name=".RegisterActivity"
-            android:label="Register">
-        </activity>
+            android:label="Register"></activity>
+        <activity android:name=".TestFoldersActivity"></activity>
     </application>
 
 </manifest>

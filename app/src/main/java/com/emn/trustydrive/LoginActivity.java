@@ -101,4 +101,8 @@ public class LoginActivity extends AppCompatActivity {
     public void launchRegisterActivity(View view) {
         startActivity(new Intent(this, RegisterActivity.class));
     }
+
+    public void launchTestFoldersActivity(View view) {
+        startActivity(new Intent(this, TestFoldersActivity.class));
+    }
 }

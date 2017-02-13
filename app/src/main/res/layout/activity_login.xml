@@ -60,4 +60,11 @@
         android:id="@+id/addAccountButton"
         android:onClick="addCloudAccount"/>
 
+    <Button
+        android:text="Test folders"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/testFoldersButton"
+        android:onClick="launchTestFoldersActivity"/>
+
 </LinearLayout>

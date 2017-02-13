@@ -17,4 +17,6 @@
     <string name="not_registered_yet">Not registered yet?</string>
     <string name="register_on_trustydrive">Register on TrustyDrive</string>
     <string name="confirmation">Confirmation</string>
+    <string name="nom">nom</string>
+    <string name="taille_et_uploaddate">taille et uploadDate</string>
 </resources>
