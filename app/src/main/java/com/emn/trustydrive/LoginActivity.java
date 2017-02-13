@@ -57,7 +57,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         passwordEditText.setText("");
-        loginButton.setAlpha(1f);
+        loginButton.setAlpha(0.5f);
         loginButton.setClickable(false);
         accounts = new Gson().fromJson(getSharedPreferences("trustyDrive", MODE_PRIVATE)
                 .getString("accounts", "[]"), new TypeToken<ArrayList<Account>>() {}.getType());
