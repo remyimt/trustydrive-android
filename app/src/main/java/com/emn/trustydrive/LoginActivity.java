@@ -35,22 +35,10 @@ public class LoginActivity extends AppCompatActivity {
         super.onResume();
         accounts = new Gson().fromJson(getSharedPreferences("trustyDrive", MODE_PRIVATE)
                 .getString("accounts", "[]"), new TypeToken<ArrayList<Account>>() {}.getType());
-        ArrayList<String> emails = new ArrayList<>();
-        for (Account account : accounts) emails.add(account.getEmail());
-//        ((ListView) findViewById(R.id.accountsListView)).setAdapter(
-//                new ArrayAdapter(LoginActivity.this, android.R.layout.simple_list_item_1, emails));
         ((ListView) findViewById(R.id.accountsListView)).setAdapter(new AccountAdapter(this, accounts, true));
-        checkAtLeastOneAccount();
-        warnIfNotEnoughAccounts();
-    }
-
-    private void checkAtLeastOneAccount() {
         TextView noAccountRegisteredTextView = (TextView) findViewById(R.id.noAccountRegisteredTextView);
         if (accounts.size() == 0) noAccountRegisteredTextView.setText(R.string.noAccountRegistered);
         else noAccountRegisteredTextView.setText(R.string.registeredAccounts);
-    }
-
-    private void warnIfNotEnoughAccounts() {
         TextView warningTextView = (TextView) findViewById(R.id.warningTextView);
         Button loginButton = (Button) findViewById(R.id.loginButton);
         if (accounts.size() < 2) {
@@ -73,7 +61,8 @@ public class LoginActivity extends AppCompatActivity {
                     account.setMetadataFileName(account.createHash(password));
                 startActivity(new Intent(LoginActivity.this, FileListActivity.class)
                         .putExtra("metadata", metadata)
-                        .putParcelableArrayListExtra("accounts", accounts));
+                        .putParcelableArrayListExtra("accounts", accounts)
+                        .putParcelableArrayListExtra("files", metadata.getFiles()));
                 progress.dismiss();
                 finish();
             }

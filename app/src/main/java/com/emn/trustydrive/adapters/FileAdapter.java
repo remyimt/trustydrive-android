@@ -12,39 +12,39 @@ import android.widget.TextView;
 
 import com.emn.trustydrive.R;
 import com.emn.trustydrive.metadata.FileData;
-import com.emn.trustydrive.metadata.TrustyDrive;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FileAdapter extends BaseAdapter {
-    private final TrustyDrive metadata;
+    private ArrayList<FileData> files;
     private final LayoutInflater inflater;
 
-    public FileAdapter(Context context, TrustyDrive metadata) {
-        this.metadata = metadata;
+    public FileAdapter(Context context, ArrayList<FileData> files) {
+        this.files = files;
         inflater = LayoutInflater.from(context);
     }
 
     public List<FileData> getFilesData() {
-        return metadata.getFiles();
+        return files;
     }
 
     public void deleteFile(int position) {
-        metadata.getFiles().remove(position);
+       files.remove(position);
     }
 
     public void add(FileData fileData) {
-        metadata.getFiles().add(fileData);
+        files.add(fileData);
     }
 
     @Override
     public int getCount() {
-        return metadata.getFiles().size();
+        return files.size();
     }
 
     @Override
     public FileData getItem(int position) {
-        return metadata.getFiles().get(position);
+        return files.get(position);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class FileAdapter extends BaseAdapter {
             ImageView storedStatusImage = (ImageView) convertView.findViewById(R.id.storedStatusImage);
             convertView.setTag(new FileViewHolder(nameTextView, sizeAndDateTextView, documentInfo, fileOptionsButton, imageIcon, storedStatusImage));
         }
-        FileData fileData = metadata.getFiles().get(position);
+        FileData fileData = files.get(position);
         fileViewHolder = (FileViewHolder) convertView.getTag();
         fileViewHolder.nameTextView.setText(fileData.getName());
         fileViewHolder.sizeAndDateTextView.setText(fileData.displaySize() + ", " + fileData.displayDate());

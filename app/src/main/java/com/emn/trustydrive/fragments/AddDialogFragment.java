@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import com.emn.trustydrive.FileListActivity;
 
@@ -21,7 +20,7 @@ public class AddDialogFragment extends DialogFragment {
                         ((FileListActivity) AddDialogFragment.this.getActivity()).chooseFile();
                         break;
                     case 1:
-                        Toast.makeText(AddDialogFragment.this.getActivity(), "TODO", Toast.LENGTH_SHORT).show();
+                        ((FileListActivity) AddDialogFragment.this.getActivity()).createDirectory();
                         break;
                     default:
                         break;

@@ -8,6 +8,7 @@ import android.util.Log;
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.WriteMode;
+import com.emn.trustydrive.metadata.Account;
 import com.emn.trustydrive.metadata.ChunkData;
 import com.emn.trustydrive.metadata.TrustyDrive;
 import com.google.gson.Gson;
@@ -25,6 +26,7 @@ public class UploadTask extends AsyncTask<Object, Void, Void> {
     private InputStream inputStream;
     private List<ChunkData> chunksData;
     private TrustyDrive metadata;
+    private List<Account> accounts;
     private Activity activity;
     private Callback callback;
     private List<Exception> exceptions;
@@ -35,10 +37,11 @@ public class UploadTask extends AsyncTask<Object, Void, Void> {
         void onError(List<Exception> exceptions);
     }
 
-    public UploadTask(InputStream inputStream, List<ChunkData> chunksData, TrustyDrive metadata, Activity activity, Callback callback) {
+    public UploadTask(InputStream inputStream, List<ChunkData> chunksData, TrustyDrive metadata, List<Account> accounts, Activity activity, Callback callback) {
         this.inputStream = inputStream;
         this.chunksData = chunksData;
         this.metadata = metadata;
+        this.accounts = accounts;
         this.activity = activity;
         this.callback = callback;
         this.exceptions = new ArrayList<>();
@@ -51,8 +54,8 @@ public class UploadTask extends AsyncTask<Object, Void, Void> {
             Log.i(this.getClass().getSimpleName(), "File uploaded");
         }
         List<ChunkData> metadataChunkData = new ArrayList<>();
-        for (ChunkData chunkData : chunksData)
-            metadataChunkData.add(new ChunkData(chunkData.getAccount(), chunkData.getAccount().getMetadataFileName()));
+        for (Account account : accounts)
+            metadataChunkData.add(new ChunkData(account, account.getMetadataFileName()));
         this.chunksData = metadataChunkData;
         Log.i(this.getClass().getSimpleName(), "Start upload metadata");
         this.upload(new ByteArrayInputStream(new Gson().toJson(metadata).getBytes(StandardCharsets.UTF_8)));
