@@ -4,6 +4,8 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,15 +26,39 @@ import java.util.List;
 public class LoginActivity extends AppCompatActivity {
     private ArrayList<Account> accounts = new ArrayList<>();
     private ProgressDialog progress;
+    private EditText passwordEditText;
+    private Button loginButton;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        accounts = new Gson().fromJson(getSharedPreferences("trustyDrive", MODE_PRIVATE)
+                .getString("accounts", "[]"), new TypeToken<ArrayList<Account>>() {}.getType());
+        loginButton = (Button) findViewById(R.id.loginButton);
+        loginButton.setClickable(false);
+        loginButton.setAlpha(.5f);
+        passwordEditText = ((EditText) findViewById(R.id.passwordEditText));
+        passwordEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (accounts.size() > 1 && !passwordEditText.getText().equals("")) {
+                    loginButton.setClickable(true);
+                    loginButton.setAlpha(1f);
+                }
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
 //        getSharedPreferences("trustyDrive", MODE_PRIVATE).edit().remove("accounts").apply();
     }
 
     protected void onResume() {
         super.onResume();
+        passwordEditText.setText("");
+        loginButton.setAlpha(1f);
+        loginButton.setClickable(false);
         accounts = new Gson().fromJson(getSharedPreferences("trustyDrive", MODE_PRIVATE)
                 .getString("accounts", "[]"), new TypeToken<ArrayList<Account>>() {}.getType());
         ((ListView) findViewById(R.id.accountsListView)).setAdapter(new AccountAdapter(this, accounts, true));
@@ -40,15 +66,12 @@ public class LoginActivity extends AppCompatActivity {
         if (accounts.size() == 0) noAccountRegisteredTextView.setText(R.string.noAccountRegistered);
         else noAccountRegisteredTextView.setText(R.string.registeredAccounts);
         TextView warningTextView = (TextView) findViewById(R.id.warningTextView);
-        Button loginButton = (Button) findViewById(R.id.loginButton);
         if (accounts.size() < 2) {
             warningTextView.setText(R.string.notEnoughAccountsWarning);
             loginButton.setClickable(false);
             loginButton.setAlpha(.5f);
         } else {
             warningTextView.setText("");
-            loginButton.setClickable(true);
-            loginButton.setAlpha(1.0f);
         }
     }
 
