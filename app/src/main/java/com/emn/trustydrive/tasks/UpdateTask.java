@@ -8,18 +8,21 @@ import android.util.Log;
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.WriteMode;
+import com.emn.trustydrive.metadata.Account;
 import com.emn.trustydrive.metadata.ChunkData;
+import com.emn.trustydrive.metadata.DataHolder;
+import com.google.gson.Gson;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UploadTask extends AsyncTask<Object, Void, Void> {
-    private InputStream inputStream;
-    private List<ChunkData> chunksData;
+public class UpdateTask extends AsyncTask<Object, Void, Void> {
     private Activity activity;
     private Callback callback;
     private List<Exception> exceptions;
@@ -30,9 +33,7 @@ public class UploadTask extends AsyncTask<Object, Void, Void> {
         void onError(List<Exception> exceptions);
     }
 
-    public UploadTask(InputStream inputStream, List<ChunkData> chunksData, Activity activity, Callback callback) {
-        this.inputStream = inputStream;
-        this.chunksData = chunksData;
+    public UpdateTask(Activity activity, Callback callback) {
         this.activity = activity;
         this.callback = callback;
         this.exceptions = new ArrayList<>();
@@ -40,6 +41,10 @@ public class UploadTask extends AsyncTask<Object, Void, Void> {
 
     protected Void doInBackground(Object... objects) {
         Log.i(this.getClass().getSimpleName(), "Start");
+        List<ChunkData> chunksData = new ArrayList<>();
+        for (Account account : DataHolder.getInstance().getAccounts())
+            chunksData.add(new ChunkData(account, account.getMetadataFileName()));
+        InputStream inputStream = new ByteArrayInputStream(new Gson().toJson(DataHolder.getInstance().getMetadata()).getBytes(StandardCharsets.UTF_8));
         int size = chunksData.size();
         int steps = 0;
         FileInputStream[] chunks = new FileInputStream[size];
@@ -85,14 +90,6 @@ public class UploadTask extends AsyncTask<Object, Void, Void> {
 
     protected void onPostExecute(Void v) {
         if (exceptions.size() > 0) callback.onError(exceptions);
-        else new UpdateTask(activity, new UpdateTask.Callback() {
-            public void onTaskComplete() {
-                callback.onTaskComplete();
-            }
-
-            public void onError(List<Exception> exceptions) {
-                callback.onError(exceptions);
-            }
-        }).execute();
+        else callback.onTaskComplete();
     }
 }

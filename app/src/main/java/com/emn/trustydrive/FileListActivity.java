@@ -14,8 +14,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.emn.trustydrive.adapters.FileAdapter;
-import com.emn.trustydrive.fragments.AddDialogFragment;
-import com.emn.trustydrive.fragments.FileOptionsDialogFragment;
+import com.emn.trustydrive.dialogFragments.AddDialogFragment;
+import com.emn.trustydrive.dialogFragments.OptionDialogFragment;
 import com.emn.trustydrive.metadata.Account;
 import com.emn.trustydrive.metadata.ChunkData;
 import com.emn.trustydrive.metadata.DataHolder;
@@ -24,6 +24,7 @@ import com.emn.trustydrive.metadata.TrustyDrive;
 import com.emn.trustydrive.metadata.Type;
 import com.emn.trustydrive.tasks.DeleteTask;
 import com.emn.trustydrive.tasks.DownloadTask;
+import com.emn.trustydrive.tasks.UpdateTask;
 import com.emn.trustydrive.tasks.UploadTask;
 
 import java.io.FileNotFoundException;
@@ -79,7 +80,7 @@ public class FileListActivity extends AppCompatActivity {
                 if (path.isEmpty()) metadata.getFiles().add(fileData);
                 else path.get(path.size() - 1).getFiles().add(fileData);
                 this.showLoading();
-                new UploadTask(inputStream, chunksData, metadata, accounts, this, new UploadTask.Callback() {
+                new UploadTask(inputStream, chunksData, this, new UploadTask.Callback() {
                     public void onTaskComplete() {
                         onSuccess("Upload succeed");
                     }
@@ -104,15 +105,14 @@ public class FileListActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void deleteFile(final int position) {
-        //TODO: Add confirmation window
-        FileData removedFile;
-        if (path.isEmpty()) removedFile = metadata.getFiles().remove(position);
-        else removedFile = path.get(path.size() - 1).getFiles().remove(position);
+    public void delete() {
+        FileData toRemove = DataHolder.getInstance().getFile();
+        if (path.isEmpty()) metadata.getFiles().remove(toRemove);
+        else path.get(path.size() - 1).getFiles().remove(toRemove);
         this.showLoading();
-        if (removedFile.getType() == Type.DIRECTORY)
+        if (toRemove.getType() == Type.DIRECTORY)
             //TODO: Implement recursive delete
-            new UploadTask(null, null, metadata, accounts, this, new UploadTask.Callback() {
+            new UpdateTask(this, new UpdateTask.Callback() {
                 public void onTaskComplete() {
                     onSuccess("Folder deleted");
                 }
@@ -122,7 +122,7 @@ public class FileListActivity extends AppCompatActivity {
                 }
             }).execute();
         else
-            new DeleteTask(removedFile.getChunks(), metadata, accounts, this, new DeleteTask.Callback() {
+            new DeleteTask(toRemove.getChunks(), this, new DeleteTask.Callback() {
                 public void onTaskComplete() {
                     onSuccess("File deleted");
                 }
@@ -133,25 +133,23 @@ public class FileListActivity extends AppCompatActivity {
             }).execute();
     }
 
-    public void displayFileOptions(View view) {
+    public void displayOptions(View view) {
         DataHolder.getInstance().setFile(fileAdapter.getItem((int) view.getTag()));
-        FileOptionsDialogFragment dialog = new FileOptionsDialogFragment();
-        dialog.setFilePosition((int) view.getTag());
-        dialog.show(getFragmentManager(), null);
+        new OptionDialogFragment().show(getFragmentManager(), null);
     }
 
-    public void toggleOnDeviceStatus(int filePosition) {
-        FileData fileData = fileAdapter.getItem(filePosition);
+    public void toggleOnDeviceStatus() {
+        FileData fileData = DataHolder.getInstance().getFile();
         //TODO
         fileAdapter.notifyDataSetChanged();
         Toast.makeText(FileListActivity.this, "TODO: Save file", Toast.LENGTH_SHORT).show();
     }
 
-    public void openFile(View view) {
-        openFile(fileAdapter.getItem((int) view.getTag()));
+    public void open(View view) {
+        open(fileAdapter.getItem((int) view.getTag()));
     }
 
-    public void openFile(FileData fileData) {
+    public void open(FileData fileData) {
         if (fileData.getType() == Type.DIRECTORY) {
             path.add(fileData);
             setTitle(fileData.getName());
@@ -183,7 +181,7 @@ public class FileListActivity extends AppCompatActivity {
         if (path.isEmpty()) metadata.getFiles().add(fileData);
         else path.get(path.size() - 1).getFiles().add(fileData);
         this.showLoading();
-        new UploadTask(null, null, metadata, accounts, this, new UploadTask.Callback() {
+        new UpdateTask(this, new UpdateTask.Callback() {
             public void onTaskComplete() {
                 onSuccess("Folder created");
             }
@@ -237,6 +235,22 @@ public class FileListActivity extends AppCompatActivity {
                 fileAdapter.setFiles(path.get(path.size() - 1).getFiles());
             }
             fileAdapter.notifyDataSetChanged();
+        }
+    }
+
+    public void rename(String name) {
+        if (!name.equals(DataHolder.getInstance().getFile().getName())) {
+            this.showLoading();
+            DataHolder.getInstance().getFile().setName(name);
+            new UpdateTask(this, new UpdateTask.Callback() {
+                public void onTaskComplete() {
+                    onSuccess("File renamed");
+                }
+
+                public void onError(List<Exception> exceptions) {
+                    onErrors(exceptions);
+                }
+            }).execute();
         }
     }
 }

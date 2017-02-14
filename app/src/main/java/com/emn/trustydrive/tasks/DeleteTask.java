@@ -6,17 +6,13 @@ import android.util.Log;
 
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
-import com.emn.trustydrive.metadata.Account;
 import com.emn.trustydrive.metadata.ChunkData;
-import com.emn.trustydrive.metadata.TrustyDrive;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DeleteTask extends AsyncTask<Object, Void, String> {
     private List<ChunkData> chunksData;
-    private TrustyDrive metadata;
-    private List<Account> accounts;
     private Activity activity;
     private Callback callback;
     private List<Exception> exceptions;
@@ -27,17 +23,15 @@ public class DeleteTask extends AsyncTask<Object, Void, String> {
         void onError(List<Exception> exceptions);
     }
 
-    public DeleteTask(List<ChunkData> chunksData, TrustyDrive metadata, List<Account> accounts, Activity activity, Callback callback) {
+    public DeleteTask(List<ChunkData> chunksData, Activity activity, Callback callback) {
         this.chunksData = chunksData;
-        this.metadata = metadata;
-        this.accounts = accounts;
         this.activity = activity;
         this.callback = callback;
         this.exceptions = new ArrayList<>();
     }
 
     protected String doInBackground(Object... objects) {
-        Log.i(this.getClass().getSimpleName(), "Start delete");
+        Log.i(this.getClass().getSimpleName(), "Start");
         for (ChunkData chunkData : chunksData)
             try {
                 switch (chunkData.getAccount().getProvider()) {
@@ -48,14 +42,13 @@ public class DeleteTask extends AsyncTask<Object, Void, String> {
             } catch (Exception e) {
                 exceptions.add(e);
             }
+        Log.i(this.getClass().getSimpleName(), "End");
         return null;
     }
 
     protected void onPostExecute(String email) {
         if (exceptions.size() > 0) callback.onError(exceptions);
-        else {
-            Log.i(this.getClass().getSimpleName(), "Chunks deleted");
-            new UploadTask(null, null, metadata, accounts, activity, new UploadTask.Callback() {
+        else new UpdateTask(activity, new UpdateTask.Callback() {
                 public void onTaskComplete() {
                     callback.onTaskComplete();
                 }
@@ -64,6 +57,5 @@ public class DeleteTask extends AsyncTask<Object, Void, String> {
                     callback.onError(exceptions);
                 }
             }).execute();
-        }
     }
 }

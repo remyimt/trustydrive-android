@@ -68,11 +68,8 @@ public class LoginActivity extends AppCompatActivity {
     public void login(View v) {
         final String password = ((EditText) findViewById(R.id.passwordEditText)).getText().toString();
         this.showLoading();
-        new LoginTask(accounts, password, this, new LoginTask.Callback() {
+        new LoginTask(password, this, new LoginTask.Callback() {
             public void onTaskComplete(TrustyDrive metadata) {
-                for (Account account : accounts)
-                    account.setMetadataFileName(account.createHash(password));
-                DataHolder.getInstance().setAccounts(accounts);
                 DataHolder.getInstance().setMetadata(metadata);
                 progress.dismiss();
                 startActivity(new Intent(LoginActivity.this, FileListActivity.class));

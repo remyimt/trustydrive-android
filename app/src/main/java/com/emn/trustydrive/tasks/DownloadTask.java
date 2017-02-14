@@ -37,7 +37,7 @@ public class DownloadTask extends AsyncTask<Object, Void, Uri> {
     }
 
     protected Uri doInBackground(Object... objects) {
-        Log.i(this.getClass().getSimpleName(), "Start download");
+        Log.i(this.getClass().getSimpleName(), "Start");
         List<InputStream> files = new ArrayList<>();
         for (ChunkData chunkData : chunksData) {
             try {

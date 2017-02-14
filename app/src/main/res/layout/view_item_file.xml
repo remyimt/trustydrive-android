@@ -38,7 +38,7 @@
         android:layout_marginEnd="50dp"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
-        android:onClick="openFile"
+        android:onClick="open"
         android:layout_centerVertical="true" >
 
         <TextView
@@ -68,7 +68,7 @@
         android:contentDescription="@string/threeVerticalDots"
         android:layout_centerVertical="true"
         android:layout_alignParentEnd="true"
-        android:onClick="displayFileOptions"
+        android:onClick="displayOptions"
         android:layout_width="50dp" />
 
 </RelativeLayout>

@@ -8,6 +8,7 @@ import android.util.Log;
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
 import com.emn.trustydrive.metadata.Account;
+import com.emn.trustydrive.metadata.DataHolder;
 import com.emn.trustydrive.metadata.TrustyDrive;
 import com.google.gson.Gson;
 
@@ -19,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
-    private List<Account> accounts;
     private String password;
     private Activity activity;
     private Callback callback;
@@ -31,8 +31,7 @@ public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
         void onError(List<Exception> e);
     }
 
-    public LoginTask(List<Account> accounts, String password, Activity activity, Callback callback) {
-        this.accounts = accounts;
+    public LoginTask(String password, Activity activity, Callback callback) {
         this.password = password;
         this.activity = activity;
         this.callback = callback;
@@ -40,16 +39,18 @@ public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
     }
 
     protected TrustyDrive doInBackground(Object... objects) {
-        Log.i(this.getClass().getSimpleName(), "Start login");
+        Log.i(this.getClass().getSimpleName(), "Start");
         List<InputStream> files = new ArrayList<>();
-        for (Account account : accounts) {
+        TrustyDrive metadata = null;
+        for (Account account : DataHolder.getInstance().getAccounts()) {
+            account.setMetadataFileName(account.createHash(password));
             try {
                 switch (account.getProvider()) {
                     case DROPBOX:
                         DbxClientV2 dbxClientV2 = new DbxClientV2(DbxRequestConfig.newBuilder("trustyDrive").build(),
                                 account.getToken());
                         if (!dbxClientV2.files().listFolder("").getEntries().isEmpty())
-                            files.add(dbxClientV2.files().download("/" + account.createHash(password)).getInputStream());
+                            files.add(dbxClientV2.files().download("/" + account.getMetadataFileName()).getInputStream());
                         break;
                 }
             } catch (Exception e) {
@@ -72,18 +73,20 @@ public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
                     fOut.write(buffer);
                 }
                 fOut.close();
-                Log.i(this.getClass().getSimpleName(), "File reconstitute");
-                return new Gson().fromJson(IOUtils.toString(activity.openFileInput("fOut"),"UTF-8"), TrustyDrive.class);
+                metadata = new Gson().fromJson(IOUtils.toString(activity.openFileInput("fOut"), "UTF-8"), TrustyDrive.class);
             } catch (Exception e) {
                 exceptions.add(e);
             }
-        } else if (files.size() == 0 && exceptions.size() == 0) return new TrustyDrive();
-        return null;
+        } else if (files.size() == 0 && exceptions.size() == 0){
+            Log.i(this.getClass().getSimpleName(), "Create new metadata");
+            metadata = new TrustyDrive();
+        }
+        Log.i(this.getClass().getSimpleName(), "End");
+        return metadata;
     }
 
     protected void onPostExecute(TrustyDrive metadata) {
-        if (exceptions.size() > 0 || metadata == null)
-            callback.onError(exceptions);
+        if (exceptions.size() > 0 || metadata == null) callback.onError(exceptions);
         else callback.onTaskComplete(metadata);
     }
 }
