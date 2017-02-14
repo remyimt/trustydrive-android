@@ -16,12 +16,14 @@ import java.util.List;
 public class AccountAdapter extends BaseAdapter {
     private List<Account> accounts;
     private final LayoutInflater inflater;
-    private final boolean smallItems;
 
-    public AccountAdapter(Context context, List<Account> accounts, boolean smallItems) {
+    public AccountAdapter(Context context, List<Account> accounts) {
         this.accounts = accounts;
-        this.smallItems = smallItems;
         inflater = LayoutInflater.from(context);
+    }
+
+    public void setAccounts(List<Account> accounts) {
+        this.accounts = accounts;
     }
 
     @Override
@@ -42,8 +44,7 @@ public class AccountAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         Account account = getItem(position);
-        int itemView = smallItems ? R.layout.view_item_cloud_account_small : R.layout.view_item_cloud_account;
-        convertView = inflater.inflate(itemView, parent, false);
+        convertView = inflater.inflate(R.layout.view_item_account, parent, false);
         ((TextView) convertView.findViewById(R.id.emailTextView)).setText(account.getEmail());
         ImageView providerLogoImageView = (ImageView) convertView.findViewById(R.id.cloudLogo);
         switch (account.getProvider()) {
@@ -61,9 +62,4 @@ public class AccountAdapter extends BaseAdapter {
         }
         return convertView;
     }
-
-    public void setAccounts(List<Account> accounts) {
-        this.accounts = accounts;
-    }
-
 }

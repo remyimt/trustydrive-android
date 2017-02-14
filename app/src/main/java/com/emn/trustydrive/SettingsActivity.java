@@ -7,31 +7,26 @@ import android.view.View;
 import android.widget.ListView;
 
 import com.emn.trustydrive.adapters.AccountAdapter;
-import com.emn.trustydrive.metadata.Account;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.emn.trustydrive.metadata.DataHolder;
 
 public class SettingsActivity extends AppCompatActivity {
+    private AccountAdapter accountAdapter;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        accountAdapter = new AccountAdapter(this, DataHolder.getInstance().getAccounts());
+        ((ListView) findViewById(R.id.accountsListView)).setAdapter(accountAdapter);
     }
 
     protected void onResume() {
         super.onResume();
-        List<Account> accounts = new Gson().fromJson(getSharedPreferences("trustyDrive", MODE_PRIVATE)
-                .getString("accounts", "[]"), new TypeToken<ArrayList<Account>>() {}.getType());
-        ((ListView) findViewById(R.id.registeredAccountsListView)).setAdapter(new AccountAdapter(this, accounts, false));
+        accountAdapter.setAccounts(DataHolder.getInstance().getAccounts());
+        accountAdapter.notifyDataSetChanged();
     }
 
     public void logout(View view) {
-        Intent intent = new Intent(this, LoginActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
+        startActivity(new Intent(this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
     }
 
     public void addAccount(View view) {

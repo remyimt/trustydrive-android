@@ -1,13 +1,10 @@
 package com.emn.trustydrive.metadata;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class Account implements Parcelable {
+public class Account {
     private String token;
     private String email;
     private Provider provider;
@@ -60,36 +57,4 @@ public class Account implements Parcelable {
         }
         return null;
     }
-
-    protected Account(Parcel in) {
-        token = in.readString();
-        email = in.readString();
-        provider = Provider.valueOf(in.readString());
-        metadataFileName = in.readString();
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(token);
-        dest.writeString(email);
-        dest.writeString(provider.name());
-        dest.writeString(metadataFileName);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Creator<Account> CREATOR = new Creator<Account>() {
-        @Override
-        public Account createFromParcel(Parcel in) {
-            return new Account(in);
-        }
-
-        @Override
-        public Account[] newArray(int size) {
-            return new Account[size];
-        }
-    };
 }

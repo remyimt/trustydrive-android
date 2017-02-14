@@ -12,9 +12,9 @@ import android.widget.TextView;
 
 import com.emn.trustydrive.R;
 import com.emn.trustydrive.metadata.FileData;
+import com.emn.trustydrive.metadata.Type;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class FileAdapter extends BaseAdapter {
     private ArrayList<FileData> files;
@@ -25,16 +25,8 @@ public class FileAdapter extends BaseAdapter {
         inflater = LayoutInflater.from(context);
     }
 
-    public List<FileData> getFilesData() {
-        return files;
-    }
-
-    public void deleteFile(int position) {
-       files.remove(position);
-    }
-
-    public void add(FileData fileData) {
-        files.add(fileData);
+    public void setFiles(ArrayList<FileData> files) {
+        this.files = files;
     }
 
     @Override
@@ -54,43 +46,22 @@ public class FileAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        FileViewHolder fileViewHolder;
-        if (convertView == null) {
-            convertView = inflater.inflate(R.layout.view_item_document, parent, false);
-            TextView nameTextView = (TextView) convertView.findViewById(R.id.nameTextView);
-            TextView sizeAndDateTextView = (TextView) convertView.findViewById(R.id.sizeAndDateTextView);
-            LinearLayout documentInfo = (LinearLayout) convertView.findViewById(R.id.documentInfo);
-            ImageButton fileOptionsButton = (ImageButton) convertView.findViewById(R.id.fileOptionsButton);
-            ImageView imageIcon = (ImageView) convertView.findViewById(R.id.imageIcon);
-            ImageView storedStatusImage = (ImageView) convertView.findViewById(R.id.storedStatusImage);
-            convertView.setTag(new FileViewHolder(nameTextView, sizeAndDateTextView, documentInfo, fileOptionsButton, imageIcon, storedStatusImage));
-        }
+        convertView = inflater.inflate(R.layout.view_item_file, parent, false);
+        TextView nameTextView = (TextView) convertView.findViewById(R.id.nameTextView);
+        TextView sizeAndDateTextView = (TextView) convertView.findViewById(R.id.sizeAndDateTextView);
+        LinearLayout documentInfo = (LinearLayout) convertView.findViewById(R.id.documentInfo);
+        ImageButton fileOptionsButton = (ImageButton) convertView.findViewById(R.id.fileOptionsButton);
+        ImageView imageIcon = (ImageView) convertView.findViewById(R.id.imageIcon);
+        ImageView storedStatusImage = (ImageView) convertView.findViewById(R.id.storedStatusImage);
         FileData fileData = files.get(position);
-        fileViewHolder = (FileViewHolder) convertView.getTag();
-        fileViewHolder.nameTextView.setText(fileData.getName());
-        fileViewHolder.sizeAndDateTextView.setText(fileData.displaySize() + ", " + fileData.displayDate());
-        fileViewHolder.documentInfo.setTag(position);
-        fileViewHolder.fileOptionsButton.setTag(position);
-        int storedOnDeviceIcon = false ? R.mipmap.on_device_icon : 0; //TODO
-        fileViewHolder.storedStatusImage.setImageResource(storedOnDeviceIcon);
+        nameTextView.setText(fileData.getName());
+        if (fileData.getType() == Type.FILE)
+            sizeAndDateTextView.setText(fileData.displaySize() + ", " + fileData.displayDate());
+        documentInfo.setTag(position);
+        fileOptionsButton.setTag(position);
+        storedStatusImage.setImageResource(fileData.isOnDevice() ? R.mipmap.on_device_icon : 0);
+        if (fileData.getType() == Type.DIRECTORY)
+            imageIcon.setImageResource(R.drawable.folder_icon);
         return convertView;
-    }
-
-    private static class FileViewHolder {
-        final TextView nameTextView;
-        final TextView sizeAndDateTextView;
-        final LinearLayout documentInfo;
-        final ImageButton fileOptionsButton;
-        final ImageView imageIcon;
-        final ImageView storedStatusImage;
-
-        private FileViewHolder(TextView nameTextView, TextView sizeAndDateTextView, LinearLayout documentInfo, ImageButton fileOptionsButton, ImageView imageIcon, ImageView storedStatusImage) {
-            this.nameTextView = nameTextView;
-            this.sizeAndDateTextView = sizeAndDateTextView;
-            this.documentInfo = documentInfo;
-            this.fileOptionsButton = fileOptionsButton;
-            this.imageIcon = imageIcon;
-            this.storedStatusImage = storedStatusImage;
-        }
     }
 }

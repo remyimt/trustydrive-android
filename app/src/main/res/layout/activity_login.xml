@@ -41,12 +41,13 @@
         android:id="@+id/warningTextView"/>
 
     <TextView
-        android:text="@string/registeredAccounts"
+        android:text="@string/noAccountRegistered"
         android:textColor="@android:color/black"
         android:textSize="20sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/noAccountRegisteredTextView"/>
+        android:id="@+id/noAccountRegisteredTextView"
+        android:layout_marginBottom="10dp"/>
 
     <ListView
         android:layout_width="match_parent"
@@ -59,12 +60,5 @@
         android:layout_height="wrap_content"
         android:id="@+id/addAccountButton"
         android:onClick="addCloudAccount"/>
-
-    <Button
-        android:text="Test folders"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/testFoldersButton"
-        android:onClick="launchTestFoldersActivity"/>
 
 </LinearLayout>

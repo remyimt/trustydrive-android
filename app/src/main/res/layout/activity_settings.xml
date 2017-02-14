@@ -20,7 +20,7 @@
         android:layout_marginBottom="10dp"/>
 
     <ListView
-        android:id="@+id/registeredAccountsListView"
+        android:id="@+id/accountsListView"
         android:layout_centerHorizontal="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -9,12 +9,13 @@ import android.os.Bundle;
 
 import com.emn.trustydrive.FileDetailsActivity;
 import com.emn.trustydrive.FileListActivity;
+import com.emn.trustydrive.metadata.DataHolder;
 import com.emn.trustydrive.metadata.FileData;
+import com.emn.trustydrive.metadata.Type;
 
 public class FileOptionsDialogFragment extends DialogFragment {
-    private String[] fileOptions = new String[]{"Open", "Save on device", "Delete", "Rename", "Details"};
+    private String[] fileOptions = new String[]{"Open", "Rename", "Delete", "Save on device", "Details"};
     private int filePosition;
-    private FileData fileData;
 
     public int getFilePosition() {
         return filePosition;
@@ -24,27 +25,25 @@ public class FileOptionsDialogFragment extends DialogFragment {
         this.filePosition = filePosition;
     }
 
-    public void setFileData(FileData fileData) {
-        this.fileData = fileData;
-    }
-
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        final FileData fileData =  DataHolder.getInstance().getFile();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        if (false) fileOptions[1] = "Delete from device"; //TODO
+        if (fileData.isOnDevice()) fileOptions[3] = "Delete from device";
+        if(fileData.getType() == Type.DIRECTORY) fileOptions = new String[]{"Open", "Rename", "Delete"};
         builder.setItems(fileOptions, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case 0:
                         ((FileListActivity) FileOptionsDialogFragment.this.getActivity()).openFile(fileData);
                         break;
-                    case 1:
-                        ((FileListActivity) FileOptionsDialogFragment.this.getActivity()).toggleSavedOnDeviceStatus(getFilePosition());
-                        break;
                     case 2:
                         ((FileListActivity) FileOptionsDialogFragment.this.getActivity()).deleteFile(getFilePosition());
                         break;
+                    case 3:
+                        ((FileListActivity) FileOptionsDialogFragment.this.getActivity()).toggleOnDeviceStatus(getFilePosition());
+                        break;
                     case 4:
-                        showFileDetails();
+                        startActivity(new Intent(getActivity(), FileDetailsActivity.class));
                         break;
                     default:
                         break;
@@ -52,11 +51,5 @@ public class FileOptionsDialogFragment extends DialogFragment {
             }
         });
         return builder.create();
-    }
-
-    private void showFileDetails() {
-        Intent intent = new Intent(getActivity(), FileDetailsActivity.class);
-        intent.putExtra("fileData", fileData);
-        startActivity(intent);
     }
 }

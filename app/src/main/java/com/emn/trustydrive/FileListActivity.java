@@ -18,6 +18,7 @@ import com.emn.trustydrive.fragments.AddDialogFragment;
 import com.emn.trustydrive.fragments.FileOptionsDialogFragment;
 import com.emn.trustydrive.metadata.Account;
 import com.emn.trustydrive.metadata.ChunkData;
+import com.emn.trustydrive.metadata.DataHolder;
 import com.emn.trustydrive.metadata.FileData;
 import com.emn.trustydrive.metadata.TrustyDrive;
 import com.emn.trustydrive.metadata.Type;
@@ -25,6 +26,7 @@ import com.emn.trustydrive.tasks.DeleteTask;
 import com.emn.trustydrive.tasks.DownloadTask;
 import com.emn.trustydrive.tasks.UploadTask;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -35,25 +37,29 @@ import java.util.List;
 public class FileListActivity extends AppCompatActivity {
     private FileAdapter fileAdapter;
     private ArrayList<Account> accounts;
-    private ArrayList<FileData> files;
     private TrustyDrive metadata;
     private ProgressDialog progress;
-
+    private List<FileData> path;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_list);
-        accounts = getIntent().getExtras().getParcelableArrayList("accounts");
-        metadata = getIntent().getExtras().getParcelable("metadata");
-        files = getIntent().getExtras().getParcelableArrayList("files");
-        fileAdapter = new FileAdapter(FileListActivity.this, files);
-        ((ListView) findViewById(R.id.listView)).setAdapter(fileAdapter);
+        metadata = DataHolder.getInstance().getMetadata();
+        if (metadata == null) onErrors(new ArrayList<Exception>());
+        else {
+            path = new ArrayList<>();
+            fileAdapter = new FileAdapter(FileListActivity.this, metadata.getFiles());
+            ((ListView) findViewById(R.id.listView)).setAdapter(fileAdapter);
+        }
+    }
+
+    protected void onResume() {
+        super.onResume();
+        accounts = DataHolder.getInstance().getAccounts();
     }
 
     public void chooseFile() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*");
-        startActivityForResult(Intent.createChooser(intent, "Select a file to upload"), 0);
+        startActivityForResult(new Intent(Intent.ACTION_GET_CONTENT).setType("*/*"), 0);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -70,24 +76,20 @@ public class FileListActivity extends AppCompatActivity {
                     chunksData.add(new ChunkData(account, this.generateRandomHash()));
                 final FileData fileData = new FileData(returnCursor.getString(nameIndex), new Date().getTime(),
                         Type.FILE, "", returnCursor.getInt(sizeIndex), chunksData, null);
-                metadata.getFiles().add(fileData);
+                if (path.isEmpty()) metadata.getFiles().add(fileData);
+                else path.get(path.size() - 1).getFiles().add(fileData);
                 this.showLoading();
                 new UploadTask(inputStream, chunksData, metadata, accounts, this, new UploadTask.Callback() {
                     public void onTaskComplete() {
-                        progress.dismiss();
-                        fileAdapter.add(fileData);
-                        fileAdapter.notifyDataSetChanged();
-                        Toast.makeText(FileListActivity.this, "Upload succeed", Toast.LENGTH_SHORT).show();
+                        onSuccess("Upload succeed");
                     }
 
                     public void onError(List<Exception> exceptions) {
-                        progress.dismiss();
-                        Toast.makeText(FileListActivity.this, "Error", Toast.LENGTH_SHORT).show();
-                        for (Exception exception : exceptions) exception.printStackTrace(); //TODO
+                        onErrors(exceptions);
                     }
                 }).execute();
-            } catch (Exception e) {
-                e.printStackTrace(); //TODO
+            } catch (FileNotFoundException e) {
+                Toast.makeText(FileListActivity.this, "File not found", Toast.LENGTH_SHORT).show();
             }
     }
 
@@ -104,33 +106,42 @@ public class FileListActivity extends AppCompatActivity {
 
     public void deleteFile(final int position) {
         //TODO: Add confirmation window
-        metadata.getFiles().remove(position);
+        FileData removedFile;
+        if (path.isEmpty()) removedFile = metadata.getFiles().remove(position);
+        else removedFile = path.get(path.size() - 1).getFiles().remove(position);
         this.showLoading();
-        new DeleteTask(fileAdapter.getItem(position).getChunks(), metadata, accounts, this, new DeleteTask.Callback() {
-            public void onTaskComplete() {
-                progress.dismiss();
-                fileAdapter.deleteFile(position);
-                fileAdapter.notifyDataSetChanged();
-                Toast.makeText(FileListActivity.this, "File deleted", Toast.LENGTH_SHORT).show();
-            }
+        if (removedFile.getType() == Type.DIRECTORY)
+            //TODO: Implement recursive delete
+            new UploadTask(null, null, metadata, accounts, this, new UploadTask.Callback() {
+                public void onTaskComplete() {
+                    onSuccess("Folder deleted");
+                }
 
-            public void onError(List<Exception> exceptions) {
-                progress.dismiss();
-                Toast.makeText(FileListActivity.this, "Error", Toast.LENGTH_SHORT).show();
-                for (Exception exception : exceptions) exception.printStackTrace(); //TODO
-            }
-        }).execute();
+                public void onError(List<Exception> exceptions) {
+                    onErrors(exceptions);
+                }
+            }).execute();
+        else
+            new DeleteTask(removedFile.getChunks(), metadata, accounts, this, new DeleteTask.Callback() {
+                public void onTaskComplete() {
+                    onSuccess("File deleted");
+                }
+
+                public void onError(List<Exception> exceptions) {
+                    onErrors(exceptions);
+                }
+            }).execute();
     }
 
     public void displayFileOptions(View view) {
+        DataHolder.getInstance().setFile(fileAdapter.getItem((int) view.getTag()));
         FileOptionsDialogFragment dialog = new FileOptionsDialogFragment();
         dialog.setFilePosition((int) view.getTag());
-        dialog.setFileData(metadata.getFiles().get((int) view.getTag()));
         dialog.show(getFragmentManager(), null);
     }
 
-    public void toggleSavedOnDeviceStatus(int filePosition) {
-        FileData fileData = fileAdapter.getFilesData().get(filePosition);
+    public void toggleOnDeviceStatus(int filePosition) {
+        FileData fileData = fileAdapter.getItem(filePosition);
         //TODO
         fileAdapter.notifyDataSetChanged();
         Toast.makeText(FileListActivity.this, "TODO: Save file", Toast.LENGTH_SHORT).show();
@@ -141,52 +152,46 @@ public class FileListActivity extends AppCompatActivity {
     }
 
     public void openFile(FileData fileData) {
-        this.showLoading();
-        new DownloadTask(fileData.getChunks(), this, new DownloadTask.Callback() {
-            public void onTaskComplete(Uri uri) {
-                progress.dismiss();
-                Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(uri, "*/*"); //TODO
-                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                if (intent.resolveActivity(getPackageManager()) != null) {
-                    startActivity(intent);
-                } else Toast.makeText(FileListActivity.this, "Not app found to open this file",
-                        Toast.LENGTH_SHORT).show();
-            }
+        if (fileData.getType() == Type.DIRECTORY) {
+            path.add(fileData);
+            setTitle(fileData.getName());
+            fileAdapter.setFiles(fileData.getFiles());
+            fileAdapter.notifyDataSetChanged();
+        } else {
+            this.showLoading();
+            new DownloadTask(fileData.getChunks(), this, new DownloadTask.Callback() {
+                public void onTaskComplete(Uri uri) {
+                    progress.dismiss();
+                    Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(uri, "*/*"); //TODO
+                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    if (intent.resolveActivity(getPackageManager()) != null) {
+                        startActivity(intent);
+                    } else Toast.makeText(FileListActivity.this, "Not app found to open this file",
+                            Toast.LENGTH_SHORT).show();
+                }
 
-            public void onError(List<Exception> exceptions) {
-                Toast.makeText(FileListActivity.this, "Error", Toast.LENGTH_SHORT).show();
-                for (Exception exception : exceptions) exception.printStackTrace(); //TODO
-                progress.dismiss();
-            }
-        }).execute();
+                public void onError(List<Exception> exceptions) {
+                    onErrors(exceptions);
+                }
+            }).execute();
+        }
     }
 
     public void createDirectory() {
-        final FileData fileData = new FileData("new directory", new Date().getTime(),
+        final FileData fileData = new FileData("new folder", new Date().getTime(),
                 Type.DIRECTORY, "", 0, null, new ArrayList<FileData>());
-        metadata.getFiles().add(fileData);
+        if (path.isEmpty()) metadata.getFiles().add(fileData);
+        else path.get(path.size() - 1).getFiles().add(fileData);
         this.showLoading();
         new UploadTask(null, null, metadata, accounts, this, new UploadTask.Callback() {
             public void onTaskComplete() {
-                progress.dismiss();
-                fileAdapter.add(fileData);
-                fileAdapter.notifyDataSetChanged();
-                Toast.makeText(FileListActivity.this, "Folder created", Toast.LENGTH_SHORT).show();
+                onSuccess("Folder created");
             }
 
             public void onError(List<Exception> exceptions) {
-                progress.dismiss();
-                Toast.makeText(FileListActivity.this, "Error", Toast.LENGTH_SHORT).show();
-                for (Exception exception : exceptions) exception.printStackTrace(); //TODO
+                onErrors(exceptions);
             }
         }).execute();
-    }
-
-    public void openDirectory(View view) {
-        startActivity(new Intent(this, FileListActivity.class)
-                .putExtra("metadata", metadata)
-                .putParcelableArrayListExtra("accounts", accounts)
-                .putParcelableArrayListExtra("files", fileAdapter.getItem((int) view.getTag()).getFiles()));
     }
 
     public void displayAddOptions(View view) {
@@ -205,5 +210,33 @@ public class FileListActivity extends AppCompatActivity {
         progress.setMessage("Please wait...");
         progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
         progress.show();
+    }
+
+    public void onErrors(List<Exception> exceptions) {
+        for (Exception exception : exceptions) exception.printStackTrace(); //TODO
+        if (progress != null) progress.dismiss();
+        Toast.makeText(FileListActivity.this, "Error", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+    }
+
+    public void onSuccess(String message) {
+        if (progress != null) progress.dismiss();
+        fileAdapter.notifyDataSetChanged();
+        Toast.makeText(FileListActivity.this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    public void onBackPressed() {
+        if (path.isEmpty()) super.onBackPressed();
+        else {
+            path.remove(path.size() - 1);
+            if (path.isEmpty()) {
+                setTitle(R.string.app_name);
+                fileAdapter.setFiles(metadata.getFiles());
+            } else {
+                setTitle(path.get(path.size() - 1).getName());
+                fileAdapter.setFiles(path.get(path.size() - 1).getFiles());
+            }
+            fileAdapter.notifyDataSetChanged();
+        }
     }
 }

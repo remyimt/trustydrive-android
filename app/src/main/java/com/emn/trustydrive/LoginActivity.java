@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.emn.trustydrive.adapters.AccountAdapter;
 import com.emn.trustydrive.metadata.Account;
+import com.emn.trustydrive.metadata.DataHolder;
 import com.emn.trustydrive.metadata.TrustyDrive;
 import com.emn.trustydrive.tasks.LoginTask;
 import com.google.gson.Gson;
@@ -26,58 +27,42 @@ import java.util.List;
 public class LoginActivity extends AppCompatActivity {
     private ArrayList<Account> accounts = new ArrayList<>();
     private ProgressDialog progress;
-    private EditText passwordEditText;
-    private Button loginButton;
-    private ListView accountsListView;
-    private TextView noAccountRegisteredTextView;
     private AccountAdapter accountAdapter;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        accounts = updatedAccounts();
-        accountAdapter = new AccountAdapter(this, accounts, true);
-        accountsListView = ((ListView) findViewById(R.id.accountsListView));
-        accountsListView.setAdapter(accountAdapter);
-        noAccountRegisteredTextView = (TextView) findViewById(R.id.noAccountRegisteredTextView);
-        loginButton = (Button) findViewById(R.id.loginButton);
-        passwordEditText = ((EditText) findViewById(R.id.passwordEditText));
-        passwordEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (accounts.size() > 1) {
-                    if (!passwordEditText.getText().toString().equals("")) {
-                        loginButton.setClickable(true);
-                        loginButton.setAlpha(1f);
-                    } else {
-                        disableLoginButton();
-                    }
-                }
-            }
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
 //        getSharedPreferences("trustyDrive", MODE_PRIVATE).edit().remove("accounts").apply();
+        accounts = new Gson().fromJson(getSharedPreferences("trustyDrive", MODE_PRIVATE)
+                .getString("accounts", "[]"), new TypeToken<ArrayList<Account>>() {}.getType());
+        DataHolder.getInstance().setAccounts(accounts);
+        accountAdapter = new AccountAdapter(this, accounts);
+        ((ListView) findViewById(R.id.accountsListView)).setAdapter(accountAdapter);
     }
 
     protected void onResume() {
         super.onResume();
-        disableLoginButton();
-        passwordEditText.setText("");
-        accounts = updatedAccounts();
+        accounts = DataHolder.getInstance().getAccounts();
         accountAdapter.setAccounts(accounts);
         accountAdapter.notifyDataSetChanged();
-        if (accounts.size() == 0) noAccountRegisteredTextView.setText(R.string.noAccountRegistered);
-        else noAccountRegisteredTextView.setText(R.string.registeredAccounts);
-        TextView warningTextView = (TextView) findViewById(R.id.warningTextView);
-        if (accounts.size() < 2) {
-            warningTextView.setText(R.string.notEnoughAccountsWarning);
-            disableLoginButton();
-        } else {
-            warningTextView.setText("");
-        }
+        final Button loginButton = (Button) findViewById(R.id.loginButton);
+        loginButton.setClickable(false);
+        loginButton.setAlpha(.5f);
+        ((EditText) findViewById(R.id.passwordEditText)).addTextChangedListener(new TextWatcher() {
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void afterTextChanged(Editable s) {
+                if (accounts.size() > 1 && s.length() > 0) {
+                    loginButton.setClickable(true);
+                    loginButton.setAlpha(1f);
+                } else {
+                    loginButton.setClickable(false);
+                    loginButton.setAlpha(.5f);
+                }
+            }
+        });
+        if (accounts.size() > 0) ((TextView) findViewById(R.id.noAccountRegisteredTextView)).setText(R.string.registeredAccounts);
+        if (accounts.size() >= 2) ((TextView) findViewById(R.id.warningTextView)).setText("");
     }
 
     public void login(View v) {
@@ -87,18 +72,17 @@ public class LoginActivity extends AppCompatActivity {
             public void onTaskComplete(TrustyDrive metadata) {
                 for (Account account : accounts)
                     account.setMetadataFileName(account.createHash(password));
-                startActivity(new Intent(LoginActivity.this, FileListActivity.class)
-                        .putExtra("metadata", metadata)
-                        .putParcelableArrayListExtra("accounts", accounts)
-                        .putParcelableArrayListExtra("files", metadata.getFiles()));
+                DataHolder.getInstance().setAccounts(accounts);
+                DataHolder.getInstance().setMetadata(metadata);
                 progress.dismiss();
+                startActivity(new Intent(LoginActivity.this, FileListActivity.class));
                 finish();
             }
 
             public void onError(List<Exception> exceptions) {
-                Toast.makeText(LoginActivity.this, "Error or wrong password", Toast.LENGTH_SHORT).show();
                 for (Exception exception : exceptions) exception.printStackTrace(); //TODO
                 progress.dismiss();
+                Toast.makeText(LoginActivity.this, "Error or wrong password", Toast.LENGTH_SHORT).show();
             }
         }).execute();
     }
@@ -115,21 +99,7 @@ public class LoginActivity extends AppCompatActivity {
         progress.show();
     }
 
-    private ArrayList<Account> updatedAccounts() {
-        return new Gson().fromJson(getSharedPreferences("trustyDrive", MODE_PRIVATE)
-                .getString("accounts", "[]"), new TypeToken<ArrayList<Account>>() {}.getType());
-    }
-
-    private void disableLoginButton() {
-        loginButton.setClickable(false);
-        loginButton.setAlpha(.5f);
-    }
-
     public void launchRegisterActivity(View view) {
         startActivity(new Intent(this, RegisterActivity.class));
-    }
-
-    public void launchTestFoldersActivity(View view) {
-        startActivity(new Intent(this, TestFoldersActivity.class));
     }
 }

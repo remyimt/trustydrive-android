@@ -5,19 +5,20 @@
     tools:context="com.emn.trustydrive.SettingsActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_centerVertical="true">
+    android:layout_centerVertical="true"
+    android:minHeight="70dp">
 
     <ImageView
         android:layout_height="50dp"
         android:src="@drawable/dropbox"
         android:layout_width="50dp"
-        android:contentDescription="provider icon"
+        android:contentDescription="@string/providerIcon"
         android:id="@+id/cloudLogo"
         android:layout_gravity="center"
-        android:layout_marginRight="15dp"/>
+        android:layout_marginEnd="15dp"/>
 
     <TextView
-        android:text="email"
+        android:text=""
         android:id="@+id/emailTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

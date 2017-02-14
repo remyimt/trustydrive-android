@@ -1,7 +1,6 @@
 package com.emn.trustydrive;
 
 import android.app.ProgressDialog;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -9,10 +8,10 @@ import android.widget.Toast;
 
 import com.dropbox.core.android.Auth;
 import com.emn.trustydrive.metadata.Account;
+import com.emn.trustydrive.metadata.DataHolder;
 import com.emn.trustydrive.metadata.Provider;
 import com.emn.trustydrive.tasks.GetEmailTask;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 
@@ -35,11 +34,11 @@ public class AddAccountActivity extends AppCompatActivity {
                 this.showLoading();
                 new GetEmailTask(account, new GetEmailTask.Callback() {
                     public void onTaskComplete(Account account) {
-                        SharedPreferences prefs = getSharedPreferences("trustyDrive", MODE_PRIVATE);
-                        ArrayList<Account> accounts = new Gson().fromJson(prefs.getString("accounts", "[]"),
-                                new TypeToken<ArrayList<Account>>() {}.getType());
+                        ArrayList<Account> accounts = DataHolder.getInstance().getAccounts();
                         accounts.add(account);
-                        prefs.edit().putString("accounts", new Gson().toJson(accounts)).apply();
+                        getSharedPreferences("trustyDrive", MODE_PRIVATE).edit()
+                                .putString("accounts", new Gson().toJson(accounts)).apply();
+                        DataHolder.getInstance().setAccounts(accounts);
                         progress.dismiss();
                         finish();
                     }
