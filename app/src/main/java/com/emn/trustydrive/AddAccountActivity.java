@@ -14,6 +14,7 @@ import com.emn.trustydrive.tasks.GetEmailTask;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class AddAccountActivity extends AppCompatActivity {
     private boolean authDropboxLaunched;
@@ -33,14 +34,25 @@ public class AddAccountActivity extends AppCompatActivity {
                 Account account = new Account(token, "", Provider.DROPBOX);
                 this.showLoading();
                 new GetEmailTask(account, new GetEmailTask.Callback() {
-                    public void onTaskComplete(Account account) {
+                    public void onTaskComplete(Account newAccount) {
                         ArrayList<Account> accounts = DataHolder.getInstance().getAccounts();
-                        accounts.add(account);
-                        getSharedPreferences("trustyDrive", MODE_PRIVATE).edit()
-                                .putString("accounts", new Gson().toJson(accounts)).apply();
-                        DataHolder.getInstance().setAccounts(accounts);
-                        progress.dismiss();
-                        finish();
+                        boolean alreadyRegistered = false;
+                        for (Account account : accounts)
+                            if (account.getProvider() == newAccount.getProvider()
+                                    && account.getEmail().equals(newAccount.getEmail()))
+                                alreadyRegistered = true;
+                        if (!alreadyRegistered) {
+                            accounts.add(newAccount);
+                            Collections.sort(accounts);
+                            getSharedPreferences("trustyDrive", MODE_PRIVATE).edit()
+                                    .putString("accounts", new Gson().toJson(accounts)).apply();
+                            DataHolder.getInstance().setAccounts(accounts);
+                            progress.dismiss();
+                            finish();
+                        } else {
+                            progress.dismiss();
+                            Toast.makeText(AddAccountActivity.this, "You should add different accounts", Toast.LENGTH_LONG).show();
+                        }
                     }
 
                     public void onError(Exception e) {

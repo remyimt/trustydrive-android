@@ -4,7 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class Account {
+public class Account implements Comparable {
     private String token;
     private String email;
     private Provider provider;
@@ -56,5 +56,10 @@ public class Account {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        return (getProvider().name()+getEmail()).compareTo(((Account) o).getProvider().name()+((Account) o).getEmail());
     }
 }
