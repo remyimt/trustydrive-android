@@ -1,38 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_document_details"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.emn.trustydrive.FileDetailsActivity">
+    tools:context="com.emn.trustydrive.FileDetailsActivity"
+    android:weightSum="1"
+    android:orientation="vertical">
 
-    <TextView
-        android:text="name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/documentName" />
+    <LinearLayout
+        android:gravity="center_vertical"
+        android:layout_weight="0.10"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:text="size"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/documentName"
-        android:layout_alignEnd="@+id/documentName"
-        android:layout_marginTop="81dp"
-        android:id="@+id/documentSize" />
+        <TextView
+            android:text="Name:"
+            android:textSize="25sp"
+            android:layout_marginStart="15dp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
 
-    <TextView
-        android:text="uploadDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/documentSize"
-        android:layout_alignEnd="@+id/documentSize"
-        android:layout_marginTop="80dp"
-        android:id="@+id/documentDate" />
-</RelativeLayout>
+        <TextView
+            android:id="@+id/documentName"
+            android:text="Name"
+            android:textSize="20sp"
+            android:layout_marginStart="15dp"
+            android:textColor="@color/black_semi_transparent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"  />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:gravity="center_vertical"
+        android:layout_weight="0.10"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:text="Size:"
+            android:textSize="25sp"
+            android:layout_marginStart="15dp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/documentSize"
+            android:text="Size"
+            android:textSize="20sp"
+            android:layout_marginStart="15dp"
+            android:textColor="@color/black_semi_transparent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"  />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:gravity="center_vertical"
+        android:layout_weight="0.10"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:text="Date:"
+            android:textSize="25sp"
+            android:layout_marginStart="15dp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/documentDate"
+            android:text="Upload date"
+            android:textSize="20sp"
+            android:layout_marginStart="15dp"
+            android:textColor="@color/black_semi_transparent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"  />
+
+    </LinearLayout>
+
+
+
+</LinearLayout>
