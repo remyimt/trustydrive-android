@@ -52,13 +52,15 @@
     <ListView
         android:layout_width="match_parent"
         android:id="@+id/accountsListView"
-        android:layout_height="220dp" />
+        android:layout_height="wrap_content"
+        android:layout_weight=".40"/>
 
     <Button
         android:text="@string/addAccount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/addAccountButton"
-        android:onClick="addCloudAccount"/>
+        android:onClick="addCloudAccount"
+        android:minHeight="50dp"/>
 
 </LinearLayout>

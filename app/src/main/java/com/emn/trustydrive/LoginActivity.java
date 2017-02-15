@@ -28,27 +28,21 @@ public class LoginActivity extends AppCompatActivity {
     private ArrayList<Account> accounts = new ArrayList<>();
     private ProgressDialog progress;
     private AccountAdapter accountAdapter;
+    private EditText passwordEditText;
+    private Button loginButton;
+    private TextView noAccountRegisteredTextView;
+    private TextView warningTextView;
+    private ListView accountsListView;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-//        getSharedPreferences("trustyDrive", MODE_PRIVATE).edit().remove("accounts").apply();
-        accounts = new Gson().fromJson(getSharedPreferences("trustyDrive", MODE_PRIVATE)
-                .getString("accounts", "[]"), new TypeToken<ArrayList<Account>>() {}.getType());
-        DataHolder.getInstance().setAccounts(accounts);
-        accountAdapter = new AccountAdapter(this, accounts);
-        ((ListView) findViewById(R.id.accountsListView)).setAdapter(accountAdapter);
-    }
-
-    protected void onResume() {
-        super.onResume();
-        accounts = DataHolder.getInstance().getAccounts();
-        accountAdapter.setAccounts(accounts);
-        accountAdapter.notifyDataSetChanged();
-        final Button loginButton = (Button) findViewById(R.id.loginButton);
-        loginButton.setClickable(false);
-        loginButton.setAlpha(.5f);
-        ((EditText) findViewById(R.id.passwordEditText)).addTextChangedListener(new TextWatcher() {
+        noAccountRegisteredTextView = (TextView) findViewById(R.id.noAccountRegisteredTextView);
+        warningTextView = (TextView) findViewById(R.id.warningTextView);
+        accountsListView = (ListView) findViewById(R.id.accountsListView);
+        loginButton = (Button) findViewById(R.id.loginButton);
+        passwordEditText = (EditText) findViewById(R.id.passwordEditText);
+        passwordEditText.addTextChangedListener(new TextWatcher() {
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
             public void onTextChanged(CharSequence s, int start, int before, int count) {}
             public void afterTextChanged(Editable s) {
@@ -61,7 +55,23 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-        if (accounts.size() > 0) ((TextView) findViewById(R.id.noAccountRegisteredTextView)).setText(R.string.registeredAccounts);
+//        getSharedPreferences("trustyDrive", MODE_PRIVATE).edit().remove("accounts").apply();
+        accounts = new Gson().fromJson(getSharedPreferences("trustyDrive", MODE_PRIVATE)
+                .getString("accounts", "[]"), new TypeToken<ArrayList<Account>>() {}.getType());
+        DataHolder.getInstance().setAccounts(accounts);
+        accountAdapter = new AccountAdapter(this, accounts);
+        accountsListView.setAdapter(accountAdapter);
+    }
+
+    protected void onResume() {
+        super.onResume();
+        accounts = DataHolder.getInstance().getAccounts();
+        accountAdapter.setAccounts(accounts);
+        accountAdapter.notifyDataSetChanged();
+        passwordEditText.setText("");
+        loginButton.setClickable(false);
+        loginButton.setAlpha(.5f);
+        if (accounts.size() > 0) noAccountRegisteredTextView.setVisibility(View.GONE);
         if (accounts.size() >= 2) ((TextView) findViewById(R.id.warningTextView)).setText("");
     }
 
