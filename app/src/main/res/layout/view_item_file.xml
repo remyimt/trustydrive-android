@@ -4,12 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.emn.trustydrive.FileListActivity"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:minHeight="65dp">
 
     <RelativeLayout
+        android:id="@+id/icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true">
+        android:layout_centerVertical="true"
+        android:layout_marginStart="10dp">
 
         <ImageView
             android:layout_height="wrap_content"
@@ -33,11 +36,10 @@
         android:id="@+id/documentInfo"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="50dp"
-        android:layout_marginEnd="50dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_height="match_parent"
+        android:layout_margin="15dp"
+        android:layout_toEndOf="@+id/icon"
+        android:layout_toStartOf="@+id/fileOptionsButton"
         android:onClick="open"
         android:layout_centerVertical="true" >
 
@@ -62,13 +64,13 @@
     <ImageButton
         android:id="@+id/fileOptionsButton"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
         android:src="@drawable/three_dots"
         android:background="@android:color/transparent"
         android:contentDescription="@string/threeVerticalDots"
         android:layout_centerVertical="true"
         android:layout_alignParentEnd="true"
         android:onClick="displayOptions"
-        android:layout_width="50dp" />
+        android:layout_width="wrap_content"
+        android:layout_marginEnd="10dp"/>
 
 </RelativeLayout>
