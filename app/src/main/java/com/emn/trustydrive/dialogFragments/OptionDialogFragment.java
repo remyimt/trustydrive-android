@@ -46,6 +46,6 @@ public class OptionDialogFragment extends DialogFragment {
                                 break;
                         }
                     }
-                }).create();
+                }).setTitle(fileData.getName()).create();
     }
 }

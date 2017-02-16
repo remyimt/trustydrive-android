@@ -30,16 +30,10 @@ public class LoginActivity extends AppCompatActivity {
     private AccountAdapter accountAdapter;
     private EditText passwordEditText;
     private Button loginButton;
-    private TextView noAccountRegisteredTextView;
-    private TextView warningTextView;
-    private ListView accountsListView;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        noAccountRegisteredTextView = (TextView) findViewById(R.id.noAccountRegisteredTextView);
-        warningTextView = (TextView) findViewById(R.id.warningTextView);
-        accountsListView = (ListView) findViewById(R.id.accountsListView);
         loginButton = (Button) findViewById(R.id.loginButton);
         passwordEditText = (EditText) findViewById(R.id.passwordEditText);
         passwordEditText.addTextChangedListener(new TextWatcher() {
@@ -60,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
                 .getString("accounts", "[]"), new TypeToken<ArrayList<Account>>() {}.getType());
         DataHolder.getInstance().setAccounts(accounts);
         accountAdapter = new AccountAdapter(this, accounts);
-        accountsListView.setAdapter(accountAdapter);
+        ((ListView) findViewById(R.id.accountsListView)).setAdapter(accountAdapter);
     }
 
     protected void onResume() {
@@ -71,14 +65,14 @@ public class LoginActivity extends AppCompatActivity {
         passwordEditText.setText("");
         loginButton.setClickable(false);
         loginButton.setAlpha(.5f);
-        if (accounts.size() > 0) noAccountRegisteredTextView.setVisibility(View.GONE);
+        if (accounts.size() > 0) findViewById(R.id.noAccountRegisteredTextView).setVisibility(View.GONE);
         if (accounts.size() >= 2) ((TextView) findViewById(R.id.warningTextView)).setText("");
     }
 
     public void login(View v) {
         final String password = ((EditText) findViewById(R.id.passwordEditText)).getText().toString();
         this.showLoading();
-        new LoginTask(password, this, new LoginTask.Callback() {
+        new LoginTask(password, new LoginTask.Callback() {
             public void onTaskComplete(TrustyDrive metadata) {
                 DataHolder.getInstance().setMetadata(metadata);
                 progress.dismiss();

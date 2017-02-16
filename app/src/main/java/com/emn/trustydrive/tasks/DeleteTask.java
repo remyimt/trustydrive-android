@@ -1,6 +1,5 @@
 package com.emn.trustydrive.tasks;
 
-import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -13,7 +12,6 @@ import java.util.List;
 
 public class DeleteTask extends AsyncTask<Object, Void, String> {
     private List<ChunkData> chunksData;
-    private Activity activity;
     private Callback callback;
     private List<Exception> exceptions;
 
@@ -23,9 +21,8 @@ public class DeleteTask extends AsyncTask<Object, Void, String> {
         void onError(List<Exception> exceptions);
     }
 
-    public DeleteTask(List<ChunkData> chunksData, Activity activity, Callback callback) {
+    public DeleteTask(List<ChunkData> chunksData, Callback callback) {
         this.chunksData = chunksData;
-        this.activity = activity;
         this.callback = callback;
         this.exceptions = new ArrayList<>();
     }
@@ -48,14 +45,14 @@ public class DeleteTask extends AsyncTask<Object, Void, String> {
 
     protected void onPostExecute(String email) {
         if (exceptions.size() > 0) callback.onError(exceptions);
-        else new UpdateTask(activity, new UpdateTask.Callback() {
-                public void onTaskComplete() {
-                    callback.onTaskComplete();
-                }
+        else new UpdateTask(new UpdateTask.Callback() {
+            public void onTaskComplete() {
+                callback.onTaskComplete();
+            }
 
-                public void onError(List<Exception> exceptions) {
-                    callback.onError(exceptions);
-                }
-            }).execute();
+            public void onError(List<Exception> exceptions) {
+                callback.onError(exceptions);
+            }
+        }).execute();
     }
 }

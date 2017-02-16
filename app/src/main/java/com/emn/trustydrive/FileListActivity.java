@@ -1,11 +1,13 @@
 package com.emn.trustydrive;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -29,11 +31,18 @@ import com.emn.trustydrive.tasks.DownloadTask;
 import com.emn.trustydrive.tasks.UpdateTask;
 import com.emn.trustydrive.tasks.UploadTask;
 
+import org.apache.commons.io.IOUtils;
+
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -45,6 +54,7 @@ public class FileListActivity extends AppCompatActivity {
     private TrustyDrive metadata;
     private ProgressDialog progress;
     private List<FileData> path;
+    private List<String> onDevice;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +63,9 @@ public class FileListActivity extends AppCompatActivity {
         if (metadata == null) onErrors(new ArrayList<Exception>());
         else {
             path = new ArrayList<>();
+//            for (File f : getFilesDir().listFiles()) f.delete();
+            onDevice = Arrays.asList(fileList());
+            checkOnDevice(metadata.getFiles());
             fileAdapter = new FileAdapter(FileListActivity.this, metadata.getFiles());
             ListView listView = ((ListView) findViewById(R.id.listView));
             listView.setAdapter(fileAdapter);
@@ -67,9 +80,23 @@ public class FileListActivity extends AppCompatActivity {
         }
     }
 
+    private void checkOnDevice(ArrayList<FileData> files) {
+        for (FileData fileData : files) {
+            if (fileData.getType() == Type.DIRECTORY) {
+                checkOnDevice(fileData.getFiles());
+            } else {
+                if (!fileData.getChunks().isEmpty())
+                    fileData.setOnDevice(onDevice.contains(fileData.getChunks().get(0).getName()));
+            }
+        }
+    }
+
     protected void onResume() {
         super.onResume();
         accounts = DataHolder.getInstance().getAccounts();
+        Log.e("files", fileList().length + "");
+        for (String s : fileList()) Log.e("filename", s);
+        Log.e("cache", getCacheDir().listFiles().length + "");
     }
 
     public void chooseFile() {
@@ -93,7 +120,7 @@ public class FileListActivity extends AppCompatActivity {
                 if (path.isEmpty()) metadata.getFiles().add(fileData);
                 else path.get(path.size() - 1).getFiles().add(fileData);
                 this.showLoading();
-                new UploadTask(inputStream, chunksData, this, new UploadTask.Callback() {
+                new UploadTask(inputStream, chunksData, new UploadTask.Callback() {
                     public void onTaskComplete() {
                         onSuccess("Upload succeed");
                     }
@@ -125,7 +152,7 @@ public class FileListActivity extends AppCompatActivity {
         this.showLoading();
         if (toRemove.getType() == Type.DIRECTORY)
             //TODO: Implement recursive delete
-            new UpdateTask(this, new UpdateTask.Callback() {
+            new UpdateTask(new UpdateTask.Callback() {
                 public void onTaskComplete() {
                     onSuccess("Folder deleted");
                 }
@@ -135,7 +162,7 @@ public class FileListActivity extends AppCompatActivity {
                 }
             }).execute();
         else
-            new DeleteTask(toRemove.getChunks(), this, new DeleteTask.Callback() {
+            new DeleteTask(toRemove.getChunks(), new DeleteTask.Callback() {
                 public void onTaskComplete() {
                     onSuccess("File deleted");
                 }
@@ -147,19 +174,49 @@ public class FileListActivity extends AppCompatActivity {
     }
 
     public void displayOptions(View view) {
-        if (view.getTag() != null) {
-            DataHolder.getInstance().setFile(fileAdapter.getItem((int) view.getTag()));
-            new OptionDialogFragment().show(getFragmentManager(), null);
-        } else {
-            Toast.makeText(this, "view.getTag() is null", Toast.LENGTH_SHORT).show();
-        }
+        DataHolder.getInstance().setFile(fileAdapter.getItem((int) view.getTag()));
+        new OptionDialogFragment().show(getFragmentManager(), null);
     }
 
     public void toggleOnDeviceStatus() {
         FileData fileData = DataHolder.getInstance().getFile();
-        //TODO
-        fileAdapter.notifyDataSetChanged();
-        makeText(FileListActivity.this, "TODO: Save file", Toast.LENGTH_SHORT).show();
+        if (fileData.isOnDevice()) {
+            fileData.setOnDevice(false);
+            if (deleteFile(fileData.getChunks().get(0).getName()))
+                onSuccess("File removed from device");
+            else onSuccess("File already remove from device");
+        } else {
+            boolean inCache = false;
+            for (File file : getCacheDir().listFiles()) {
+                if (file.getName().equals(fileData.getChunks().get(0).getName())) {
+                    inCache = true;
+                    try {
+                        OutputStream output = openFileOutput(file.getName(), Context.MODE_PRIVATE);
+                        InputStream input = new FileInputStream(file);
+                        this.showLoading();
+                        IOUtils.copy(input, output);
+                        file.delete();
+                        fileData.setOnDevice(true);
+                        onSuccess("File saved");
+                    } catch (Exception e) {
+                        onErrors(Collections.singletonList(e));
+                    }
+                }
+            }
+            if (!inCache) {
+                this.showLoading();
+                new DownloadTask(fileData.getChunks(), false, this, new DownloadTask.Callback() {
+                    public void onTaskComplete(Uri uri) {
+                        DataHolder.getInstance().getFile().setOnDevice(true);
+                        onSuccess("File saved");
+                    }
+
+                    public void onError(List<Exception> exceptions) {
+                        onErrors(exceptions);
+                    }
+                }).execute();
+            }
+        }
     }
 
     public void open(View view) {
@@ -173,23 +230,38 @@ public class FileListActivity extends AppCompatActivity {
             fileAdapter.setFiles(fileData.getFiles());
             fileAdapter.notifyDataSetChanged();
         } else {
-            this.showLoading();
-            new DownloadTask(fileData.getChunks(), this, new DownloadTask.Callback() {
-                public void onTaskComplete(Uri uri) {
-                    progress.dismiss();
-                    Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(uri, "*/*"); //TODO
-                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    if (intent.resolveActivity(getPackageManager()) != null) {
-                        startActivity(intent);
-                    } else makeText(FileListActivity.this, "Not app found to open this file",
-                            Toast.LENGTH_SHORT).show();
-                }
+            if (!fileData.getChunks().isEmpty()) {
+                String name = fileData.getChunks().get(0).getName();
+                if (getFileStreamPath(name).exists())
+                    open(FileProvider.getUriForFile(this, "com.emn.trustydrive.provider",
+                            new File(getFilesDir(), name)));
+                else if (new File(getCacheDir(), name).exists())
+                    open(FileProvider.getUriForFile(this, "com.emn.trustydrive.provider",
+                            new File(getCacheDir(), name)));
+                else {
+                    this.showLoading();
+                    new DownloadTask(fileData.getChunks(), true, this, new DownloadTask.Callback() {
+                        public void onTaskComplete(Uri uri) {
+                            progress.dismiss();
+                            open(uri);
+                        }
 
-                public void onError(List<Exception> exceptions) {
-                    onErrors(exceptions);
+                        public void onError(List<Exception> exceptions) {
+                            onErrors(exceptions);
+                        }
+                    }).execute();
                 }
-            }).execute();
+            }
         }
+    }
+
+    public void open(Uri uri) {
+        Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(uri, "*/*"); //TODO
+        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        } else makeText(FileListActivity.this, "Not app found to open this file",
+                Toast.LENGTH_SHORT).show();
     }
 
     public void createDirectory() {
@@ -198,7 +270,7 @@ public class FileListActivity extends AppCompatActivity {
         if (path.isEmpty()) metadata.getFiles().add(fileData);
         else path.get(path.size() - 1).getFiles().add(fileData);
         this.showLoading();
-        new UpdateTask(this, new UpdateTask.Callback() {
+        new UpdateTask(new UpdateTask.Callback() {
             public void onTaskComplete() {
                 onSuccess("Folder created");
             }
@@ -259,7 +331,7 @@ public class FileListActivity extends AppCompatActivity {
         if (!name.equals(DataHolder.getInstance().getFile().getName())) {
             this.showLoading();
             DataHolder.getInstance().getFile().setName(name);
-            new UpdateTask(this, new UpdateTask.Callback() {
+            new UpdateTask(new UpdateTask.Callback() {
                 public void onTaskComplete() {
                     onSuccess("File renamed");
                 }
@@ -269,5 +341,10 @@ public class FileListActivity extends AppCompatActivity {
                 }
             }).execute();
         }
+    }
+
+    protected void onDestroy() {
+        super.onDestroy();
+        for (File f : getCacheDir().listFiles()) f.delete();
     }
 }

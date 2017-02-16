@@ -1,17 +1,14 @@
 package com.emn.trustydrive.tasks;
 
-import android.app.Activity;
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
-import com.dropbox.core.v2.files.WriteMode;
 import com.emn.trustydrive.metadata.ChunkData;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -20,7 +17,6 @@ import java.util.List;
 public class UploadTask extends AsyncTask<Object, Void, Void> {
     private InputStream inputStream;
     private List<ChunkData> chunksData;
-    private Activity activity;
     private Callback callback;
     private List<Exception> exceptions;
 
@@ -30,10 +26,9 @@ public class UploadTask extends AsyncTask<Object, Void, Void> {
         void onError(List<Exception> exceptions);
     }
 
-    public UploadTask(InputStream inputStream, List<ChunkData> chunksData, Activity activity, Callback callback) {
+    public UploadTask(InputStream inputStream, List<ChunkData> chunksData, Callback callback) {
         this.inputStream = inputStream;
         this.chunksData = chunksData;
-        this.activity = activity;
         this.callback = callback;
         this.exceptions = new ArrayList<>();
     }
@@ -42,11 +37,10 @@ public class UploadTask extends AsyncTask<Object, Void, Void> {
         Log.i(this.getClass().getSimpleName(), "Start");
         int size = chunksData.size();
         int steps = 0;
-        FileInputStream[] chunks = new FileInputStream[size];
+        ByteArrayInputStream[] chunks = new ByteArrayInputStream[size];
         try {
-            FileOutputStream[] chunksOut = new FileOutputStream[size];
-            for (int i = 0; i < size; i++)
-                chunksOut[i] = activity.openFileOutput(chunksData.get(i).getName(), Context.MODE_PRIVATE);
+            ByteArrayOutputStream[] chunksOut = new ByteArrayOutputStream[size];
+            for (int i = 0; i < size; i++) chunksOut[i] = new ByteArrayOutputStream();
             byte[] buffer = new byte[1024 * 1024];
             int read;
             while (-1 != (read = inputStream.read(buffer))) {
@@ -57,9 +51,8 @@ public class UploadTask extends AsyncTask<Object, Void, Void> {
                 for (int i = 0; i < size; i++) chunksOut[i].write(outBuffers[i]);
                 steps++;
             }
-            for (FileOutputStream chunk : chunksOut) chunk.close();
-            for (int j = 0; j < size; j++)
-                chunks[j] = activity.openFileInput(chunksData.get(j).getName());
+            for (int i = 0; i < chunks.length; i++)
+                chunks[i] = new ByteArrayInputStream(chunksOut[i].toByteArray());
         } catch (IOException e) {
             exceptions.add(e);
         }
@@ -71,8 +64,7 @@ public class UploadTask extends AsyncTask<Object, Void, Void> {
                     case DROPBOX:
                         new DbxClientV2(DbxRequestConfig.newBuilder("trustyDrive").build(),
                                 chunkData.getAccount().getToken()).files().uploadBuilder("/"
-                                + chunkData.getName()).withMode(WriteMode.OVERWRITE)
-                                .uploadAndFinish(chunks[i]);
+                                + chunkData.getName()).uploadAndFinish(chunks[i]);
                         break;
                 }
             } catch (Exception e) {
@@ -85,7 +77,7 @@ public class UploadTask extends AsyncTask<Object, Void, Void> {
 
     protected void onPostExecute(Void v) {
         if (exceptions.size() > 0) callback.onError(exceptions);
-        else new UpdateTask(activity, new UpdateTask.Callback() {
+        else new UpdateTask(new UpdateTask.Callback() {
             public void onTaskComplete() {
                 callback.onTaskComplete();
             }

@@ -1,7 +1,6 @@
 package com.emn.trustydrive.tasks;
 
 import android.app.Activity;
-import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.content.FileProvider;
@@ -19,6 +18,7 @@ import java.util.List;
 
 public class DownloadTask extends AsyncTask<Object, Void, Uri> {
     private List<ChunkData> chunksData;
+    private boolean inCache;
     private Activity activity;
     private final Callback callback;
     private List<Exception> exceptions;
@@ -29,8 +29,9 @@ public class DownloadTask extends AsyncTask<Object, Void, Uri> {
         void onError(List<Exception> e);
     }
 
-    public DownloadTask(List<ChunkData> chunksData, Activity activity, Callback callback) {
+    public DownloadTask(List<ChunkData> chunksData, boolean inCache, Activity activity, Callback callback) {
         this.chunksData = chunksData;
+        this.inCache = inCache;
         this.activity = activity;
         this.callback = callback;
         this.exceptions = new ArrayList<>();
@@ -53,10 +54,11 @@ public class DownloadTask extends AsyncTask<Object, Void, Uri> {
             }
         }
         Log.i(this.getClass().getSimpleName(), "Download finished");
-        if (files.size() == chunksData.size())
+        if (!files.isEmpty() && files.size() == chunksData.size())
             try {
                 int size = files.size();
-                FileOutputStream fOut = activity.openFileOutput("fOut.txt", Context.MODE_PRIVATE); //TODO
+                FileOutputStream fOut = new FileOutputStream(new File(inCache ?
+                        activity.getCacheDir() : activity.getFilesDir(), chunksData.get(0).getName()));
                 int[] read = new int[size];
                 int steps = 0;
                 byte[][] buffers = new byte[size][16 * 1024]; // Can't use more
@@ -72,7 +74,7 @@ public class DownloadTask extends AsyncTask<Object, Void, Uri> {
                 fOut.close();
                 Log.i(this.getClass().getSimpleName(), "Finish reconstitute file in " + steps + " steps");
                 return FileProvider.getUriForFile(activity, "com.emn.trustydrive.provider",
-                        new File(activity.getFilesDir(), "fOut.txt")); //TODO
+                        new File(inCache ? activity.getCacheDir() : activity.getFilesDir(), chunksData.get(0).getName()));
             } catch (Exception e) {
                 exceptions.add(e);
             }

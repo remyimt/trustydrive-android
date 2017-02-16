@@ -1,7 +1,5 @@
 package com.emn.trustydrive.tasks;
 
-import android.app.Activity;
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -12,16 +10,13 @@ import com.emn.trustydrive.metadata.DataHolder;
 import com.emn.trustydrive.metadata.TrustyDrive;
 import com.google.gson.Gson;
 
-import org.apache.commons.io.IOUtils;
-
-import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
     private String password;
-    private Activity activity;
     private Callback callback;
     private List<Exception> exceptions;
 
@@ -31,9 +26,8 @@ public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
         void onError(List<Exception> e);
     }
 
-    public LoginTask(String password, Activity activity, Callback callback) {
+    public LoginTask(String password, Callback callback) {
         this.password = password;
-        this.activity = activity;
         this.callback = callback;
         this.exceptions = new ArrayList<>();
     }
@@ -61,7 +55,7 @@ public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
             Log.i(this.getClass().getSimpleName(), "Chunks found");
             try {
                 int size = files.size();
-                FileOutputStream fOut = activity.openFileOutput("fOut", Context.MODE_PRIVATE);
+                ByteArrayOutputStream metadataBytes = new ByteArrayOutputStream();
                 int[] read = new int[size];
                 byte[][] buffers = new byte[size][16 * 1024]; // Can't use more
                 while (-1 != (read[0] = files.get(0).read(buffers[0]))) {
@@ -70,10 +64,9 @@ public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
                     for (int i = 0; i < size; i++) totalRead += read[i];
                     byte[] buffer = new byte[totalRead];
                     for (int i = 0; i < totalRead; i++) buffer[i] = buffers[i % size][i / size];
-                    fOut.write(buffer);
+                    metadataBytes.write(buffer);
                 }
-                fOut.close();
-                metadata = new Gson().fromJson(IOUtils.toString(activity.openFileInput("fOut"), "UTF-8"), TrustyDrive.class);
+                metadata = new Gson().fromJson(metadataBytes.toString(), TrustyDrive.class);
             } catch (Exception e) {
                 exceptions.add(e);
             }
