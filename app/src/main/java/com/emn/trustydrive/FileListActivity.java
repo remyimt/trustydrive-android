@@ -147,8 +147,12 @@ public class FileListActivity extends AppCompatActivity {
     }
 
     public void displayOptions(View view) {
-        DataHolder.getInstance().setFile(fileAdapter.getItem((int) view.getTag()));
-        new OptionDialogFragment().show(getFragmentManager(), null);
+        if (view.getTag() != null) {
+            DataHolder.getInstance().setFile(fileAdapter.getItem((int) view.getTag()));
+            new OptionDialogFragment().show(getFragmentManager(), null);
+        } else {
+            Toast.makeText(this, "view.getTag() is null", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void toggleOnDeviceStatus() {
