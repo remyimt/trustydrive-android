@@ -7,9 +7,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -35,6 +37,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static android.widget.Toast.makeText;
+
 public class FileListActivity extends AppCompatActivity {
     private FileAdapter fileAdapter;
     private ArrayList<Account> accounts;
@@ -50,7 +54,16 @@ public class FileListActivity extends AppCompatActivity {
         else {
             path = new ArrayList<>();
             fileAdapter = new FileAdapter(FileListActivity.this, metadata.getFiles());
-            ((ListView) findViewById(R.id.listView)).setAdapter(fileAdapter);
+            ListView listView = ((ListView) findViewById(R.id.listView));
+            listView.setAdapter(fileAdapter);
+            listView.setLongClickable(true);
+            listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                    displayOptions(view);
+                    return true;
+                }
+            });
         }
     }
 
@@ -90,7 +103,7 @@ public class FileListActivity extends AppCompatActivity {
                     }
                 }).execute();
             } catch (FileNotFoundException e) {
-                Toast.makeText(FileListActivity.this, "File not found", Toast.LENGTH_SHORT).show();
+                makeText(FileListActivity.this, "File not found", Toast.LENGTH_SHORT).show();
             }
     }
 
@@ -142,7 +155,7 @@ public class FileListActivity extends AppCompatActivity {
         FileData fileData = DataHolder.getInstance().getFile();
         //TODO
         fileAdapter.notifyDataSetChanged();
-        Toast.makeText(FileListActivity.this, "TODO: Save file", Toast.LENGTH_SHORT).show();
+        makeText(FileListActivity.this, "TODO: Save file", Toast.LENGTH_SHORT).show();
     }
 
     public void open(View view) {
@@ -164,7 +177,7 @@ public class FileListActivity extends AppCompatActivity {
                     intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     if (intent.resolveActivity(getPackageManager()) != null) {
                         startActivity(intent);
-                    } else Toast.makeText(FileListActivity.this, "Not app found to open this file",
+                    } else makeText(FileListActivity.this, "Not app found to open this file",
                             Toast.LENGTH_SHORT).show();
                 }
 
@@ -213,14 +226,14 @@ public class FileListActivity extends AppCompatActivity {
     public void onErrors(List<Exception> exceptions) {
         for (Exception exception : exceptions) exception.printStackTrace(); //TODO
         if (progress != null) progress.dismiss();
-        Toast.makeText(FileListActivity.this, "Error", Toast.LENGTH_SHORT).show();
+        makeText(FileListActivity.this, "Error", Toast.LENGTH_SHORT).show();
         startActivity(new Intent(this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
     }
 
     public void onSuccess(String message) {
         if (progress != null) progress.dismiss();
         fileAdapter.notifyDataSetChanged();
-        Toast.makeText(FileListActivity.this, message, Toast.LENGTH_SHORT).show();
+        makeText(FileListActivity.this, message, Toast.LENGTH_SHORT).show();
     }
 
     public void onBackPressed() {
