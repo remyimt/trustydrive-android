@@ -5,11 +5,11 @@
     tools:context="com.emn.trustydrive.FileListActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:minHeight="65dp">
+    android:minHeight="70dp">
 
     <RelativeLayout
         android:id="@+id/icon"
-        android:layout_width="wrap_content"
+        android:layout_width="40dp"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginStart="10dp">
@@ -46,6 +46,8 @@
 
         <TextView
             android:text=""
+            android:ellipsize="middle"
+            android:maxLines="1"
             android:id="@+id/nameTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -64,13 +66,13 @@
 
     <ImageButton
         android:id="@+id/fileOptionsButton"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:src="@drawable/three_dots"
         android:background="@android:color/transparent"
         android:contentDescription="@string/threeVerticalDots"
         android:layout_centerVertical="true"
         android:layout_alignParentEnd="true"
         android:onClick="displayOptions"
-        android:layout_width="50dp"/>
+        android:layout_width="40dp"/>
 
 </RelativeLayout>

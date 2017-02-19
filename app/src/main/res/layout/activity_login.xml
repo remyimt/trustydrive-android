@@ -1,66 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_access_documents"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_login"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:gravity="center_vertical"
     tools:context="com.emn.trustydrive.LoginActivity"
-    android:orientation="vertical"
     android:focusableInTouchMode="true">
 
-    <EditText
-        android:layout_width="match_parent"
+<LinearLayout
+    android:id="@+id/logo"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_centerHorizontal="true">
+
+    <ImageView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="textPassword"
-        android:id="@+id/passwordEditText"
-        android:hint="@string/password"/>
+        android:contentDescription="@string/icon"
+        android:src="@mipmap/trustydrive"/>
+
+    <TextView
+        android:layout_height="match_parent"
+        android:text="@string/app_name"
+        android:textColor="@color/colorPrimary"
+        android:gravity="center_vertical"
+        android:textSize="25sp"
+        android:layout_width="wrap_content" />
+</LinearLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_below="@+id/logo"
+        android:id="@+id/passwordLayout"
+        android:layout_height="wrap_content"
+        app:passwordToggleEnabled="true"
+        android:layout_width="match_parent">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/passwordEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/password"
+            android:inputType="textPassword"/>
+    </android.support.design.widget.TextInputLayout>
 
     <Button
+        android:layout_below="@id/passwordLayout"
         android:text="@string/login"
+        android:background="@color/colorPrimary"
+        android:textColor="@color/white"
+        android:textAllCaps="false"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/loginButton"
+        android:layout_marginBottom="5dp"
         android:onClick="login"/>
 
-    <TextView
-        android:onClick="launchRegisterActivity"
-        android:textAlignment="textEnd"
-        android:text="@string/not_registered_yet"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:text="@string/notEnoughAccountsWarning"
-        android:textColor="@android:color/holo_red_dark"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/warningTextView"/>
-
-    <TextView
-        android:text="@string/noAccountRegistered"
-        android:textColor="@android:color/black"
-        android:textSize="20sp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/noAccountRegisteredTextView"
-        android:layout_marginBottom="10dp"/>
-
-    <ListView
-        android:layout_width="match_parent"
-        android:id="@+id/accountsListView"
-        android:layout_height="wrap_content"
-        android:layout_weight=".40"/>
-
     <Button
+        android:layout_marginBottom="0dp"
+        android:layout_below="@id/loginButton"
         android:text="@string/addAccount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/addAccountButton"
-        android:onClick="addCloudAccount"
-        android:minHeight="50dp"/>
+        android:background="@color/colorPrimary"
+        android:textColor="@color/white"
+        android:textAllCaps="false"
+        android:onClick="addAccount"/>
 
-</LinearLayout>
+    <TextView
+        android:layout_below="@+id/addAccountButton"
+        android:text="@string/notEnoughAccountsWarning"
+        android:textColor="@android:color/holo_red_dark"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:id="@+id/warningTextView"/>
+
+    <ListView
+        android:layout_below="@+id/warningTextView"
+        android:layout_width="match_parent"
+        android:id="@+id/accountsListView"
+        android:layout_height="wrap_content"/>
+
+</RelativeLayout>

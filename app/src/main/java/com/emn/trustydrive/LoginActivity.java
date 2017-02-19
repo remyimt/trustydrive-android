@@ -1,9 +1,9 @@
 package com.emn.trustydrive;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -16,7 +16,6 @@ import android.widget.Toast;
 import com.emn.trustydrive.adapters.AccountAdapter;
 import com.emn.trustydrive.metadata.Account;
 import com.emn.trustydrive.metadata.DataHolder;
-import com.emn.trustydrive.metadata.TrustyDrive;
 import com.emn.trustydrive.tasks.LoginTask;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -24,7 +23,7 @@ import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends Activity {
     private ArrayList<Account> accounts = new ArrayList<>();
     private ProgressDialog progress;
     private AccountAdapter accountAdapter;
@@ -65,7 +64,6 @@ public class LoginActivity extends AppCompatActivity {
         passwordEditText.setText("");
         loginButton.setClickable(false);
         loginButton.setAlpha(.5f);
-        if (accounts.size() > 0) findViewById(R.id.noAccountRegisteredTextView).setVisibility(View.GONE);
         if (accounts.size() >= 2) ((TextView) findViewById(R.id.warningTextView)).setText("");
     }
 
@@ -73,22 +71,43 @@ public class LoginActivity extends AppCompatActivity {
         final String password = ((EditText) findViewById(R.id.passwordEditText)).getText().toString();
         this.showLoading();
         new LoginTask(password, new LoginTask.Callback() {
-            public void onTaskComplete(TrustyDrive metadata) {
-                DataHolder.getInstance().setMetadata(metadata);
+            public void onTaskComplete() {
                 progress.dismiss();
                 startActivity(new Intent(LoginActivity.this, FileListActivity.class));
                 finish();
             }
 
             public void onError(List<Exception> exceptions) {
-                for (Exception exception : exceptions) exception.printStackTrace(); //TODO
                 progress.dismiss();
-                Toast.makeText(LoginActivity.this, "Error or wrong password", Toast.LENGTH_SHORT).show();
+                boolean internetErrorDisplay = false;
+                boolean passwordErrorDisplay = false;
+                boolean accountsErrorDisplay = false;
+                for (Exception exception : exceptions) {
+                    exception.printStackTrace();
+                    if (exception.getClass() == com.dropbox.core.NetworkIOException.class) {
+                        if (!internetErrorDisplay) {
+                            Toast.makeText(LoginActivity.this, "Check your internet connection", Toast.LENGTH_LONG).show();
+                            internetErrorDisplay = true;
+                        }
+                    } else if (exception.getClass() == com.dropbox.core.v2.files.DownloadErrorException.class) {
+                        if (!passwordErrorDisplay) {
+                            Toast.makeText(LoginActivity.this, "Wrong password", Toast.LENGTH_LONG).show();
+                            passwordErrorDisplay = true;
+                        }
+                    } else if (exception.getClass() == com.google.gson.JsonSyntaxException.class) {
+                        if (!accountsErrorDisplay) {
+                            Toast.makeText(LoginActivity.this, "Accounts doesn't match", Toast.LENGTH_LONG).show();
+                            accountsErrorDisplay = true;
+                        }
+                    }
+                }
+                if (!internetErrorDisplay && !passwordErrorDisplay && !accountsErrorDisplay)
+                    Toast.makeText(LoginActivity.this, "Error or wrong password", Toast.LENGTH_LONG).show();
             }
         }).execute();
     }
 
-    public void addCloudAccount(View v) {
+    public void addAccount(View v) {
         startActivity(new Intent(this, AddAccountActivity.class));
     }
 
@@ -98,9 +117,5 @@ public class LoginActivity extends AppCompatActivity {
         progress.setMessage("Please wait...");
         progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
         progress.show();
-    }
-
-    public void launchRegisterActivity(View view) {
-        startActivity(new Intent(this, RegisterActivity.class));
     }
 }

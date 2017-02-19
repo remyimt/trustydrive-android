@@ -1,22 +1,16 @@
 <resources>
     <string name="app_name">TrustyDrive</string>
     <string name="settings">Settings</string>
-    <string name="addAccount">Add a cloud account</string>
+    <string name="addAccount">Add an account</string>
     <string name="fileDetails">File details</string>
 
     <string name="app_key">vh0mfppea042f6h</string>
 
     <string name="notEnoughAccountsWarning">You must register at least two cloud accounts in order to use TrustyDrive.</string>
-    <string name="noAccountRegistered">No cloud account registered.</string>
-    <string name="registeredAccounts">Registered cloud accounts:</string>
-    <string name="register">Register</string>
-    <string name="login">Login</string>
+    <string name="registeredAccounts">Registered accounts:</string>
+    <string name="login">Log in</string>
     <string name="password">Password</string>
-
     <string name="logout">Log out</string>
-    <string name="not_registered_yet">Not registered yet?</string>
-    <string name="register_on_trustydrive">Register on TrustyDrive</string>
-    <string name="confirmation">Confirmation</string>
 
     <string name="threeVerticalDots">three vertical dots</string>
     <string name="icon">icon</string>

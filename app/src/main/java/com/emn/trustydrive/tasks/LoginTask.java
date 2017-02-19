@@ -19,9 +19,10 @@ public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
     private String password;
     private Callback callback;
     private List<Exception> exceptions;
+    private boolean newAccountAdded;
 
     public interface Callback {
-        void onTaskComplete(TrustyDrive metadata);
+        void onTaskComplete();
 
         void onError(List<Exception> e);
     }
@@ -53,6 +54,7 @@ public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
         }
         if (files.size() > 0) {
             Log.i(this.getClass().getSimpleName(), "Chunks found");
+            newAccountAdded = files.size() < DataHolder.getInstance().getAccounts().size();
             try {
                 int size = files.size();
                 ByteArrayOutputStream metadataBytes = new ByteArrayOutputStream();
@@ -70,16 +72,36 @@ public class LoginTask extends AsyncTask<Object, Void, TrustyDrive> {
             } catch (Exception e) {
                 exceptions.add(e);
             }
-        } else if (files.size() == 0 && exceptions.size() == 0){
-            Log.i(this.getClass().getSimpleName(), "Create new metadata");
-            metadata = new TrustyDrive();
         }
         Log.i(this.getClass().getSimpleName(), "End");
         return metadata;
     }
 
     protected void onPostExecute(TrustyDrive metadata) {
-        if (exceptions.size() > 0 || metadata == null) callback.onError(exceptions);
-        else callback.onTaskComplete(metadata);
+        if (exceptions.size() > 0) callback.onError(exceptions);
+        else if (exceptions.size() == 0 && metadata == null) {
+            DataHolder.getInstance().setMetadata(new TrustyDrive());
+            new UpdateTask(new UpdateTask.Callback() {
+                public void onTaskComplete() {
+                    callback.onTaskComplete();
+                }
+
+                public void onError(List<Exception> exceptions) {
+                    callback.onError(exceptions);
+                }
+            }).execute();
+        } else {
+            DataHolder.getInstance().setMetadata(metadata);
+            if (newAccountAdded) new UpdateTask(new UpdateTask.Callback() {
+                public void onTaskComplete() {
+                    callback.onTaskComplete();
+                }
+
+                public void onError(List<Exception> exceptions) {
+                    callback.onError(exceptions);
+                }
+            }).execute();
+            else callback.onTaskComplete();
+        }
     }
 }

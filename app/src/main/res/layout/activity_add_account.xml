@@ -12,17 +12,25 @@
 
     <Button
         android:text="Dropbox"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:id="@+id/buttonDropbox"
+        android:background="@color/colorPrimary"
+        android:textColor="@color/white"
+        android:textAllCaps="false"
+        android:layout_marginBottom="5dp"
         android:layout_above="@+id/buttonGoogleDrive"
         android:onClick="addDropboxAccount" />
 
     <Button
         android:text="Google Drive"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:textColor="@color/white"
+        android:layout_marginBottom="5dp"
+        android:textAllCaps="false"
         android:id="@+id/buttonGoogleDrive"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
@@ -31,8 +39,11 @@
 
     <Button
         android:text="OneDrive"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:textColor="@color/white"
+        android:textAllCaps="false"
         android:id="@+id/buttonOneDrive"
         android:layout_below="@+id/buttonGoogleDrive"
         android:layout_centerHorizontal="true"

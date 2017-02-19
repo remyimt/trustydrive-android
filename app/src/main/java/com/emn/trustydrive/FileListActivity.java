@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -94,9 +93,6 @@ public class FileListActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         accounts = DataHolder.getInstance().getAccounts();
-        Log.e("files", fileList().length + "");
-        for (String s : fileList()) Log.e("filename", s);
-        Log.e("cache", getCacheDir().listFiles().length + "");
     }
 
     public void chooseFile() {
@@ -300,10 +296,21 @@ public class FileListActivity extends AppCompatActivity {
     }
 
     public void onErrors(List<Exception> exceptions) {
-        for (Exception exception : exceptions) exception.printStackTrace(); //TODO
         if (progress != null) progress.dismiss();
-        makeText(FileListActivity.this, "Error", Toast.LENGTH_SHORT).show();
-        startActivity(new Intent(this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+        boolean internetErrorDisplay = false;
+        for (Exception exception : exceptions) {
+            exception.printStackTrace();
+            if (exception.getClass() == com.dropbox.core.NetworkIOException.class) {
+                if (!internetErrorDisplay) {
+                    Toast.makeText(FileListActivity.this, "Check your internet connection", Toast.LENGTH_LONG).show();
+                    internetErrorDisplay = true;
+                }
+            }
+        }
+        if (!internetErrorDisplay) {
+            makeText(FileListActivity.this, "Error", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+        }
     }
 
     public void onSuccess(String message) {
