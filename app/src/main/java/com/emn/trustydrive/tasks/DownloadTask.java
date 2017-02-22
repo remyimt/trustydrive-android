@@ -10,6 +10,7 @@ import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
 import com.emn.trustydrive.metadata.ChunkData;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -59,20 +60,21 @@ public class DownloadTask extends AsyncTask<Object, Void, Uri> {
                 int size = files.size();
                 FileOutputStream fOut = new FileOutputStream(new File(inCache ?
                         activity.getCacheDir() : activity.getFilesDir(), chunksData.get(0).getName()));
-                int[] read = new int[size];
-                int steps = 0;
-                byte[][] buffers = new byte[size][16 * 1024]; // Can't use more
-                while (-1 != (read[0] = files.get(0).read(buffers[0]))) {
-                    steps++;
-                    for (int i = 1; i < size; i++) read[i] = files.get(i).read(buffers[i]);
-                    int totalRead = 0;
-                    for (int i = 0; i < size; i++) totalRead += read[i];
-                    byte[] buffer = new byte[totalRead];
-                    for (int i = 0; i < totalRead; i++) buffer[i] = buffers[i % size][i / size];
-                    fOut.write(buffer);
+                List<BufferedInputStream> buffers = new ArrayList<>();
+                for (InputStream file : files) buffers.add(new BufferedInputStream(file));
+                int i = 0;
+                int read;
+                List<Byte> buffer = new ArrayList<>();
+                while (-1 != (read = buffers.get(i%size).read())) {
+                    buffer.add((byte) read);
+                    i++;
                 }
+                byte[] bufferArray = new byte[buffer.size()];
+                Log.e("i is", i+"");
+                for (i = 0; i < buffer.size(); i++) bufferArray[i] = buffer.get(i);
+                fOut.write(bufferArray);
                 fOut.close();
-                Log.i(this.getClass().getSimpleName(), "Finish reconstitute file in " + steps + " steps");
+                Log.i(this.getClass().getSimpleName(), "End");
                 return FileProvider.getUriForFile(activity, "com.emn.trustydrive.provider",
                         new File(inCache ? activity.getCacheDir() : activity.getFilesDir(), chunksData.get(0).getName()));
             } catch (Exception e) {
