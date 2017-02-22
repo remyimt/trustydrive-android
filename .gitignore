@@ -10,3 +10,4 @@
 .externalNativeBuild
 libs/
 app/src/main/gen/
+app/build
