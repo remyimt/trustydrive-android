@@ -21,6 +21,7 @@ public class RenameDialogFragment extends DialogFragment {
         FileData fileData = DataHolder.getInstance().getFile();
         final EditText editText = new EditText(getActivity());
         editText.setText(fileData.getName());
+        editText.setSingleLine();
         editText.requestFocus();
         final AlertDialog dialog = new AlertDialog.Builder(getActivity())
                 .setTitle("Rename " + (fileData.getType() == Type.DIRECTORY ? "folder" : "file"))

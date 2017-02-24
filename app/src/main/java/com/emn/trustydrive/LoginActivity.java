@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -48,6 +50,16 @@ public class LoginActivity extends Activity {
                 }
             }
         });
+        passwordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE && accounts.size() >= 2) {
+                    login();
+                    handled = true;
+                }
+                return handled;
+            }
+        });
 //        getSharedPreferences("trustyDrive", MODE_PRIVATE).edit().remove("accounts").apply();
         accounts = new Gson().fromJson(getSharedPreferences("trustyDrive", MODE_PRIVATE)
                 .getString("accounts", "[]"), new TypeToken<ArrayList<Account>>() {}.getType());
@@ -68,6 +80,10 @@ public class LoginActivity extends Activity {
     }
 
     public void login(View v) {
+        login();
+    }
+
+    public void login() {
         final String password = ((EditText) findViewById(R.id.passwordEditText)).getText().toString();
         this.showLoading();
         new LoginTask(password, new LoginTask.Callback() {
